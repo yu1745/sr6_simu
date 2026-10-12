@@ -1,0 +1,36 @@
+{
+  "link_dimensions": [
+    {
+      "motor": 1,
+      "eye_to_eye": 258.0
+    },
+    {
+      "motor": 2,
+      "eye_to_eye": 258.0
+    },
+    {
+      "motor": 5,
+      "eye_to_eye": 258.0
+    },
+    {
+      "motor": 6,
+      "eye_to_eye": 258.0
+    },
+    {
+      "motor": 3,
+      "eye_to_eye": 258.5700263989471
+    }
+  ],
+  "simplified_thread_envelope_overlap_mm3": 0,
+  "mounting_interface_overlaps": [],
+  "modified_solids_valid": true,
+  "source_invalid_motor_solids": [
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    39
+  ]
+}

@@ -1,0 +1,4 @@
+# Preserve STEP bytes and model hashes across platforms.
+*.stp -text
+*.step -text
+*.png binary
