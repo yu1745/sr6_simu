@@ -15,6 +15,8 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
   camera.position.set(510,300,610);
   const controls=new OrbitControls(camera,canvas);
   controls.target.set(0,125,0); controls.enableDamping=true;
+  // Decay drag inertia quickly (default .05 drifts for much longer).
+  controls.dampingFactor=0.3;
   scene.add(new T.HemisphereLight(0xd3e9ff,0x27303b,2.3));
   const light=new T.DirectionalLight(0xffffff,3); light.position.set(100,500,300); scene.add(light);
   const grid=new T.GridHelper(800,40,0x324858,0x172733); grid.position.y=-40; scene.add(grid);

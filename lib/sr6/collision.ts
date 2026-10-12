@@ -2,7 +2,7 @@ import * as T from 'three';
 import { CAD_LINKS, type CadData } from './cad-rig.ts';
 import { collisionParts as selectCollisionParts } from './collision-scope.ts';
 import collisionWorkerUrl from './collision-worker.ts?worker&url';
-export type CollisionStatus={ready:boolean;pending:boolean;pairs:[number,number][];names:string[];elapsed:number;workers?:number;partCount?:number;error?:string;details?:string[]};
+export type CollisionStatus={ready:boolean;pending:boolean;pairs:[number,number][];names:string[];elapsed:number;workers?:number;partCount?:number;displayedRevision?:number;requestedRevision?:number;error?:string;details?:string[]};
 export type CollisionRequest=
   |{type:'init';shard:number;shardCount:number;parts:{id:number;positions:number[];indices:number[];group:string}[];exclusions:[number,number][]}
   |{type:'check';revision:number;matrices:{id:number;matrix:number[]}[]};
@@ -18,7 +18,11 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
   const workers=Array.from({length:workerCount},()=>new Worker(collisionWorkerUrl,{type:'module'}));
   const initialized=new Set<number>();
   const completed=new Map<number,Extract<CollisionResult,{type:'result'}>>();
-  let batchStarted=0;
+  let batchStarted=0,epoch=0,batchEpoch=0,failed=false;
+  type Snapshot={id:number;matrix:number[]}[];
+  const capture=():Snapshot=>[...meshes].map(([id,m])=>({id,matrix:m.matrix.toArray()}));
+  const place=(snapshot:Snapshot)=>{for(const {id,matrix} of snapshot){const mesh=meshes.get(id)!;mesh.matrix.fromArray(matrix);mesh.matrixWorldNeedsUpdate=true;}};
+  let desired=capture(),displayed=desired,inFlight=desired;
   const collisionParts=selectCollisionParts(data);
   const original=new Map([...meshes].map(([id,m])=>[id,m.material]));
   const overlays=new Map<string,T.Mesh>();
@@ -55,25 +59,27 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
   }
   function publish(patch:Partial<CollisionStatus>){status={...status,...patch};onStatus(status);}
   function fail(message:string){
-    ready=false;busy=false;clear();workers.forEach(worker=>worker.terminate());
+    ready=false;busy=false;failed=true;clear();place(desired);workers.forEach(worker=>worker.terminate());
     publish({ready:false,pending:false,pairs:[],names:[],error:message});
   }
   workers.forEach((worker,index)=>{
   worker.onmessage=(event:MessageEvent<CollisionResult>)=>{
-    if(disposed)return;
+    if(disposed||failed)return;
     const result=event.data;
     if(result.type==='ready'){initialized.add(index);ready=initialized.size===workerCount;publish({ready,pending:true});return;}
     if(result.type==='error'){fail(result.message);return;}
     completed.set(index,result);
     if(completed.size!==workerCount)return;
     busy=false;
-    // Never apply an older pose's transparency or intersection geometry.
-    if(!enabled||result.revision!==revision){completed.clear();return;}
+    // Commit the tested pose and its overlays together. A newer requested pose
+    // does not invalidate this coherent display frame, otherwise playback can
+    // starve forever when computation takes longer than one animation frame.
+    if(!enabled||batchEpoch!==epoch){completed.clear();return;}
     const batches=[...completed.values()];completed.clear();
     const merged={revision:result.revision,pairs:batches.flatMap(r=>r.pairs),
       intersections:batches.flatMap(r=>r.intersections),warnings:batches.flatMap(r=>r.warnings),
       elapsed:performance.now()-batchStarted};
-    clear();applied=merged.revision;
+    clear();displayed=inFlight;place(displayed);applied=merged.revision;
     for(const id of new Set(merged.pairs.flat()))showEdges(id);
     for(const hit of merged.intersections){
       if(!hit.positions.length)continue;
@@ -81,7 +87,7 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
       const geometry=new T.BufferGeometry();geometry.setAttribute('position',new T.Float32BufferAttribute(hit.positions,3));
       const overlay=new T.Mesh(geometry,red);overlay.renderOrder=2;mesh.add(overlay);overlays.set(`${hit.a}:${hit.b}`,overlay);
     }
-    publish({pending:applied!==revision,pairs:merged.pairs,elapsed:merged.elapsed,details:merged.warnings,
+    publish({pending:applied!==revision,displayedRevision:applied,requestedRevision:revision,pairs:merged.pairs,elapsed:merged.elapsed,details:merged.warnings,
       names:merged.pairs.map(([a,b])=>`${names.get(a)} ↔ ${names.get(b)}`)});
   };
   worker.onerror=event=>{if(!disposed)fail(event.message||'干涉检测线程失败');};
@@ -92,14 +98,16 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
   return {
     changed(){
       revision++;
-      if(applied>=0){clear();applied=-1;}
-      if(!status.pending)publish({pending:true,pairs:[],names:[],details:[]});
+      desired=capture();
+      if(failed)return;
+      place(displayed);
+      if(!status.pending)publish({pending:true,requestedRevision:revision});
     },
     update(visible:boolean){
-      if(enabled!==visible){enabled=visible;if(!visible)clear();else applied=-1;}
-      if(!enabled||!ready||busy||applied===revision)return;
-      busy=true;batchStarted=performance.now();completed.clear();publish({pending:true});
-      const request:CollisionRequest={type:'check',revision,matrices:[...meshes].map(([id,m])=>({id,matrix:m.matrix.toArray()}))};
+      if(enabled!==visible){enabled=visible;epoch++;if(!visible)clear();else applied=-1;}
+      if(!enabled||failed||!ready||busy||applied===revision)return;
+      busy=true;batchStarted=performance.now();batchEpoch=epoch;inFlight=desired;completed.clear();publish({pending:true,requestedRevision:revision});
+      const request:CollisionRequest={type:'check',revision,matrices:inFlight};
       workers.forEach(worker=>worker.postMessage(request));
     },
     dispose(){disposed=true;workers.forEach(worker=>worker.terminate());clear();for(const lines of edges.values()){lines.removeFromParent();lines.geometry.dispose();}edges.clear();hidden.dispose();edgeMaterial.dispose();red.dispose();},
