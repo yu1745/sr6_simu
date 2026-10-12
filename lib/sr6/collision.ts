@@ -2,6 +2,7 @@ import * as T from 'three';
 import { CAD_LINKS, type CadData } from './cad-rig.ts';
 import { collisionParts as selectCollisionParts } from './collision-scope.ts';
 import collisionWorkerUrl from './collision-worker.ts?worker&url';
+import { solidOutlineGeometry, solidOutlineMaterial } from './solid-outline.ts';
 export type CollisionStatus={ready:boolean;pending:boolean;pairs:[number,number][];names:string[];elapsed:number;workers?:number;partCount?:number;displayedRevision?:number;requestedRevision?:number;error?:string;details?:string[]};
 export type CollisionRequest=
   |{type:'init';shard:number;shardCount:number;parts:{id:number;positions:number[];indices:number[];group:string}[];exclusions:[number,number][]}
@@ -26,14 +27,14 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
   const collisionParts=selectCollisionParts(data);
   const original=new Map([...meshes].map(([id,m])=>[id,m.material]));
   const overlays=new Map<string,T.Mesh>();
-  // Cache feature edges per solid; suppress coplanar and smooth tessellation edges.
+  // Cache adjacency once; the shader adds view-dependent smooth silhouettes.
   const hidden=new T.MeshBasicMaterial({visible:false});
-  const edgeMaterial=new T.LineBasicMaterial({color:0xe6a79e,transparent:true,opacity:.75,depthWrite:false});
+  const edgeMaterial=solidOutlineMaterial();
   const edges=new Map<number,T.LineSegments>();
   function showEdges(id:number){
     const mesh=meshes.get(id)!;
     let lines=edges.get(id);
-    if(!lines){lines=new T.LineSegments(new T.EdgesGeometry(mesh.geometry,20),edgeMaterial);mesh.add(lines);edges.set(id,lines);}
+    if(!lines){lines=new T.LineSegments(solidOutlineGeometry(mesh.geometry,20),edgeMaterial);mesh.add(lines);edges.set(id,lines);}
     lines.visible=true;mesh.material=hidden;
   }
   const red=new T.MeshBasicMaterial({color:0xff2222,side:T.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
