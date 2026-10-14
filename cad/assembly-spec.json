@@ -2,7 +2,7 @@
   "source": "sr6_mini.stp",
   "source_sha256": "313963a09a1765475e251350939f98f91b5c5edd8b0160401d6a5b7f204cfe94",
   "output": "sr6_mini_complete.stp",
-  "sha256": "4af4b314c5c89e0bd061e218a3f05031eafd193b4b081a9f6411ec726d1f669c",
+  "sha256": "e15e328f624c0c1bccbd2751bb7fc3017519342d71a9068e6a5bd066072eca2f",
   "shaft": {
     "diameter": 10,
     "length": 210,
@@ -14,24 +14,24 @@
     "nominal_tap_drill_diameter": 5
   },
   "bearing": {
-    "model": "POS6 dimensional reference",
+    "model": "SA6T/K JLCFA supplier STEP",
     "bore": 6,
-    "head_diameter": 18,
+    "head_diameter": 20,
     "ball_diameter": 12.7,
     "ball_width": 9,
     "housing_width": 6.75,
     "center_to_tip": 36,
-    "male_thread_length": 22,
+    "male_thread_length": 21,
     "engagement": 12,
-    "exposed_thread": 10
+    "exposed_thread": 9
   },
   "nuts": {
     "model": "DIN934 M6",
     "height": 5,
     "across_flats": 10,
-    "spacer_quantity": 4,
+    "spacer_quantity": 0,
     "locking_quantity": 4,
-    "quantity": 8
+    "quantity": 4
   },
   "pitch_arm_connection": "Rod-end male shanks screw directly into tapped arm end plates; no additional bolts or nuts; threads simplified",
   "receiver_fasteners": [
@@ -39,7 +39,7 @@
       "side": "right",
       "bolt_id": 64,
       "nut_id": 65,
-      "designation": "M6x40 full-thread socket head cap screw",
+      "designation": "M6x50 full-thread socket head cap screw",
       "head_diameter": 10,
       "head_height": 6,
       "hex_key": 5,
@@ -47,14 +47,14 @@
       "head_seat": [
         100.062295,
         270.186359,
-        57.5
+        67.5
       ],
       "nut_seat": [
         100.062295,
         270.186359,
         25.5
       ],
-      "clamped_stack": 32,
+      "clamped_stack": 42,
       "locking_nut_height": 5,
       "tip_protrusion": 3,
       "thread_model": "simplified"
@@ -63,7 +63,7 @@
       "side": "left",
       "bolt_id": 66,
       "nut_id": 67,
-      "designation": "M6x40 full-thread socket head cap screw",
+      "designation": "M6x50 full-thread socket head cap screw",
       "head_diameter": 10,
       "head_height": 6,
       "hex_key": 5,
@@ -71,14 +71,14 @@
       "head_seat": [
         100.062295,
         270.186359,
-        -182.671573
+        -192.671573
       ],
       "nut_seat": [
         100.062295,
         270.186359,
         -150.671573
       ],
-      "clamped_stack": 32,
+      "clamped_stack": 42,
       "locking_nut_height": 5,
       "tip_protrusion": 3,
       "thread_model": "simplified"
@@ -93,7 +93,7 @@
         50,
         51
       ],
-      "designation": "M6x20 socket head cap screw",
+      "designation": "M6x30 socket head cap screw",
       "head_diameter": 10,
       "head_height": 6,
       "hex_key": 5,
@@ -101,14 +101,14 @@
       "head_seat": [
         183.062295,
         270.186359,
-        38.5
+        48.5
       ],
       "nut_seat": [
         183.062295,
         270.186359,
         25.5
       ],
-      "clamped_stack": 13,
+      "clamped_stack": 23,
       "locking_nut_height": 5,
       "tip_protrusion": 2,
       "thread_model": "simplified"
@@ -123,7 +123,7 @@
         60,
         61
       ],
-      "designation": "M6x20 socket head cap screw",
+      "designation": "M6x30 socket head cap screw",
       "head_diameter": 10,
       "head_height": 6,
       "hex_key": 5,
@@ -131,21 +131,30 @@
       "head_seat": [
         183.062295,
         270.186359,
-        -163.671573
+        -173.671573
       ],
       "nut_seat": [
         183.062295,
         270.186359,
         -150.671573
       ],
-      "clamped_stack": 13,
+      "clamped_stack": 23,
       "locking_nut_height": 5,
       "tip_protrusion": 2,
       "thread_model": "simplified"
     }
   ],
-  "stack": "receiver -> 5 mm nut -> 9 mm bearing -> 5 mm nut -> 9 mm bearing",
-  "receiver_ball_spacing": 14,
+  "stack": "receiver -> 5 mm steel sleeve -> 9 mm ball -> 10 mm steel sleeve -> 9 mm ball -> 5 mm steel sleeve",
+  "receiver_ball_spacing": 19,
+  "steel_sleeves": {
+    "bore": 6,
+    "outer_diameter": 8,
+    "height": 5,
+    "single_quantity": 8,
+    "double_height": 10,
+    "double_quantity": 2,
+    "status": "nominal stock sleeve geometry; joint interference begins near 19 degrees; verify supplier bore tolerance"
+  },
   "eye_to_eye": 258.0,
   "inherited_invalid_source_solids": [
     2,
@@ -210,25 +219,25 @@
       "upper": [
         100.062295,
         270.186359,
-        -178.171573
+        -183.171573
       ],
       "initial": -0.035383639995503285,
       "lower": [
-        249.52071640312465,
-        61.52100720821427,
+        249.45712500886327,
+        62.1634809232698,
         -151.99999999996183
       ],
       "length": 258.0,
-      "crank_angle_deg": 5.476519024008065,
+      "crank_angle_deg": 5.8288139476900644,
       "shaft_start": [
-        235.61760743539213,
-        80.93173760745015,
-        -154.43456493019795
+        235.5599315196667,
+        81.51444632575632,
+        -154.8996812092677
       ],
       "shaft_end": [
-        113.96540396773253,
-        250.7756286007641,
-        -175.73700806976387
+        113.95948848919659,
+        250.83539359751344,
+        -180.27189179069413
       ]
     },
     {
@@ -245,17 +254,17 @@
         -66.99999999994655
       ],
       "lower": [
-        339.2201948862959,
-        85.85630180435534,
+        338.5122304849094,
+        87.8365262323635,
         -66.99999999994655
       ],
       "upper": [
         183.062295,
         270.186359,
-        -159.171573
+        -164.171573
       ],
       "length": 258.5700263989471,
-      "crank_angle_deg": 19.099067597227393
+      "crank_angle_deg": 20.24662555770365
     },
     {
       "motor": 3,
@@ -271,17 +280,17 @@
         -41.00000000005345
       ],
       "lower": [
-        341.1179534864124,
-        79.78712745645944,
+        340.6423539601903,
+        81.43524358595371,
         -41.00000000005345
       ],
       "upper": [
         183.062295,
         270.186359,
-        34.0
+        39.0
       ],
       "length": 258.5700263989471,
-      "crank_angle_deg": 15.628617701260996
+      "crank_angle_deg": 16.56465907915632
     },
     {
       "motor": 4,
@@ -299,25 +308,25 @@
       "upper": [
         100.062295,
         270.186359,
-        53.0
+        58.0
       ],
       "initial": 0,
       "lower": [
-        249.64185472545455,
-        60.165037910119295,
+        249.62013035745935,
+        60.423507467154835,
         43.99999999997688
       ],
       "length": 258.0,
-      "crank_angle_deg": 4.733649693685069,
+      "crank_angle_deg": 4.875187175650144,
       "shaft_start": [
-        235.72747707657504,
-        79.70190498824773,
-        44.83720930230461
+        235.70777358002127,
+        79.93633086555903,
+        45.302325581374376
       ],
       "shaft_end": [
-        113.9766726488795,
-        250.64949192187154,
-        52.16279069767227
+        113.97465177743808,
+        250.67353560159577,
+        56.6976744186025
       ]
     },
     {
@@ -423,14 +432,20 @@
     "61": "M3_upper_eye",
     "62": "M3_lower_ball",
     "63": "M3_lower_eye",
-    "64": "receiver_right_M6x40_socket_cap_bolt",
+    "64": "receiver_right_M6x50_socket_cap_bolt",
     "65": "receiver_right_M6_locking_nut",
-    "66": "receiver_left_M6x40_socket_cap_bolt",
+    "66": "receiver_left_M6x50_socket_cap_bolt",
     "67": "receiver_left_M6_locking_nut",
-    "68": "receiver_pitch_right_M6x20_socket_cap_bolt",
+    "68": "receiver_pitch_right_M6x30_socket_cap_bolt",
     "69": "receiver_pitch_right_M6_locking_nut",
-    "70": "receiver_pitch_left_M6x20_socket_cap_bolt",
-    "71": "receiver_pitch_left_M6_locking_nut"
+    "70": "receiver_pitch_left_M6x30_socket_cap_bolt",
+    "71": "receiver_pitch_left_M6_locking_nut",
+    "72": "receiver_main_outer_72_steel_sleeve_M6",
+    "73": "receiver_main_outer_73_steel_sleeve_M6",
+    "74": "receiver_pitch_outer_74_steel_sleeve_M6",
+    "75": "receiver_pitch_inner_75_steel_sleeve_M6",
+    "76": "receiver_pitch_outer_76_steel_sleeve_M6",
+    "77": "receiver_pitch_inner_77_steel_sleeve_M6"
   },
   "replacements": {
     "motor_base": {
@@ -498,25 +513,25 @@
       "part_id": 49,
       "rotation": [
         [
-          0.769432978163854,
-          -0.6270612841305392,
-          0.1215197023468265
+          0.7676460006548026,
+          -0.6265681394037145,
+          0.1346550569524016
         ],
         [
-          0.6387275570334365,
-          0.7553793883274619,
-          -0.14638677391119528
+          0.640874104390782,
+          0.7505101595705859,
+          -0.1612912976655802
         ],
         [
-          -5.579472580637685e-17,
-          0.1902527940257087,
-          0.9817351345273383
+          -5.951437419346598e-17,
+          0.21011155861946604,
+          0.9776774176253121
         ]
       ],
       "translation": [
-        314.8248859495279,
-        95.8045250891606,
-        -24.16867732108065
+        314.52711192850177,
+        97.11267700528164,
+        -23.581961489480534
       ],
       "part_scale": 1,
       "hole_diameter": 6,
@@ -530,21 +545,21 @@
         24.626859904889894
       ],
       "eye_to_eye": 258.5700263989471,
-      "old_eye_to_eye": 273.4821845866887,
+      "old_eye_to_eye": 274.6770927585838,
       "stem_direction": [
-        -0.6387168041498288,
-        0.7694200248738837,
-        -0.005802535626884826
+        -0.6408070412901389,
+        0.7675656717405156,
+        0.014466354015759816
       ],
       "lower_flange": [
-        326.7468273570053,
-        97.09907565026377,
-        -41.13055703381637
+        326.2241975015535,
+        98.70546883995914,
+        -40.67450707918085
       ],
       "upper_flange": [
-        198.7918842546968,
-        251.23795983941392,
-        34.142898231976446
+        198.84336023191923,
+        251.28362673424357,
+        38.643739126319346
       ],
       "link": {
         "motor": 3,
@@ -560,17 +575,17 @@
           -41.00000000005345
         ],
         "lower": [
-          341.1179534864124,
-          79.78712745645944,
+          340.6423539601903,
+          81.43524358595371,
           -41.00000000005345
         ],
         "upper": [
           183.062295,
           270.186359,
-          34.0
+          39.0
         ],
         "length": 258.5700263989471,
-        "crank_angle_deg": 15.628617701260996
+        "crank_angle_deg": 16.56465907915632
       }
     },
     "left_pitch_arm": {
@@ -601,17 +616,17 @@
           -66.99999999994655
         ],
         "lower": [
-          339.2201948862959,
-          85.85630180435534,
+          338.5122304849094,
+          87.8365262323635,
           -66.99999999994655
         ],
         "upper": [
           183.062295,
           270.186359,
-          -159.171573
+          -164.171573
         ],
         "length": 258.5700263989471,
-        "crank_angle_deg": 19.099067597227393
+        "crank_angle_deg": 20.24662555770365
       }
     }
   },

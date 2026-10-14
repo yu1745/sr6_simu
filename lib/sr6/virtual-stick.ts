@@ -2,11 +2,13 @@ import type { Pose } from './kinematics';
 
 export type StickSettings = {enabled:boolean;length:number};
 export const DEFAULT_STICK:StickSettings={enabled:false,length:220};
-// Firmware convention: neutral rod along +y; R0 does not tilt the rod.
+// The mounted rod extends along receiver -y (STEP -X at neutral).
+// For receiver up axis u: receiver = tip + L*u - L*y_hat.
+// Tip translations remain relative to the neutral tip; R0 does not tilt the rod.
 export function receiverFromTip(tip:Pose,length:number):Pose {
-  return {...tip,x:tip.x+length*Math.sin(tip.pitch),
-    y:tip.y+length*(1-Math.cos(tip.pitch)*Math.cos(tip.roll)),
-    z:tip.z-length*Math.cos(tip.pitch)*Math.sin(tip.roll)};
+  return {...tip,x:tip.x-length*Math.sin(tip.pitch),
+    y:tip.y-length*(1-Math.cos(tip.pitch)*Math.cos(tip.roll)),
+    z:tip.z+length*Math.cos(tip.pitch)*Math.sin(tip.roll)};
 }
 export function tipFromReceiver(receiver:Pose,length:number):Pose {
   return receiverFromTip(receiver,-length);

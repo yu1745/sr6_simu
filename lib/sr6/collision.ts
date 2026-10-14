@@ -11,7 +11,7 @@ export type CollisionResult=
   |{type:'ready'}|{type:'error';message:string}
   |{type:'result';revision:number;elapsed:number;pairs:[number,number][];intersections:{a:number;b:number;positions:number[]}[];warnings:string[]};
 
-export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,onStatus:(s:CollisionStatus)=>void){
+export function createCollisionDisplay<Frame=undefined>(data:CadData,meshes:Map<number,T.Mesh>,onStatus:(s:CollisionStatus)=>void,initialFrame?:Frame,onFrame?:(frame:Frame|undefined)=>void,onCommitted?:()=>void){
   // Use Vite's emitted URL directly. Vinext can rewrite import.meta.url to a
   // build-time file:/// URL, which is not a valid worker origin in the browser.
   // Use the browser-reported logical CPU budget; leave one for UI/rendering.
@@ -20,10 +20,12 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
   const initialized=new Set<number>();
   const completed=new Map<number,Extract<CollisionResult,{type:'result'}>>();
   let batchStarted=0,epoch=0,batchEpoch=0,failed=false;
-  type Snapshot={id:number;matrix:number[]}[];
-  const capture=():Snapshot=>[...meshes].map(([id,m])=>({id,matrix:m.matrix.toArray()}));
-  const place=(snapshot:Snapshot)=>{for(const {id,matrix} of snapshot){const mesh=meshes.get(id)!;mesh.matrix.fromArray(matrix);mesh.matrixWorldNeedsUpdate=true;}};
-  let desired=capture(),displayed=desired,inFlight=desired;
+  // Keep motion telemetry with the same snapshot as the rendered geometry.
+  // In particular, a newer command's acceleration must not label an older pose.
+  type Snapshot={matrices:{id:number;matrix:number[]}[];frame:Frame|undefined};
+  const capture=(frame?:Frame):Snapshot=>({matrices:[...meshes].map(([id,m])=>({id,matrix:m.matrix.toArray()})),frame});
+  const place=(snapshot:Snapshot)=>{for(const {id,matrix} of snapshot.matrices){const mesh=meshes.get(id)!;mesh.matrix.fromArray(matrix);mesh.matrixWorldNeedsUpdate=true;}onFrame?.(snapshot.frame);};
+  let desired=capture(initialFrame),displayed=desired,inFlight=desired;
   const collisionParts=selectCollisionParts(data);
   const original=new Map([...meshes].map(([id,m])=>[id,m.material]));
   const overlays=new Map<string,T.Mesh>();
@@ -40,7 +42,7 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
   const red=new T.MeshBasicMaterial({color:0xff2222,side:T.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
   const groups=new Map<number,string>();
   const exclusions:[number,number][]=[];
-  [38,39,40,46,54,55,56,57,64,65,66,67,68,69,70,71].forEach(id=>groups.set(id,'platform'));
+  [38,39,40,46,54,55,56,57,64,65,66,67,68,69,70,71,72,73,74,75,76,77].forEach(id=>groups.set(id,'platform'));
   const twist=[41,42,43,44,45,47,48];twist.forEach(id=>{groups.set(id,'twist');exclusions.push([39,id],[40,id]);});
   for(const link of CAD_LINKS){
     groups.set(link.crank,`crank${link.motor}`);groups.set(link.lower,`crank${link.motor}`);groups.set(link.upper,'platform');
@@ -63,6 +65,13 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
     ready=false;busy=false;failed=true;clear();place(desired);workers.forEach(worker=>worker.terminate());
     publish({ready:false,pending:false,pairs:[],names:[],error:message});
   }
+  function dispatchLatest(){
+    if(!enabled||failed||!ready||busy||applied===revision)return;
+    busy=true;batchStarted=performance.now();batchEpoch=epoch;inFlight=desired;completed.clear();
+    publish({pending:true,requestedRevision:revision});
+    const request:CollisionRequest={type:'check',revision,matrices:inFlight.matrices};
+    workers.forEach(worker=>worker.postMessage(request));
+  }
   workers.forEach((worker,index)=>{
   worker.onmessage=(event:MessageEvent<CollisionResult>)=>{
     if(disposed||failed)return;
@@ -80,7 +89,7 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
     const merged={revision:result.revision,pairs:batches.flatMap(r=>r.pairs),
       intersections:batches.flatMap(r=>r.intersections),warnings:batches.flatMap(r=>r.warnings),
       elapsed:performance.now()-batchStarted};
-    clear();displayed=inFlight;place(displayed);applied=merged.revision;
+    clear();displayed=inFlight;place(displayed);applied=merged.revision;onCommitted?.();
     for(const id of new Set(merged.pairs.flat()))showEdges(id);
     for(const hit of merged.intersections){
       if(!hit.positions.length)continue;
@@ -90,6 +99,9 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
     }
     publish({pending:applied!==revision,displayedRevision:applied,requestedRevision:revision,pairs:merged.pairs,elapsed:merged.elapsed,details:merged.warnings,
       names:merged.pairs.map(([a,b])=>`${names.get(a)} ↔ ${names.get(b)}`)});
+    // A worker batch often finishes just after a display tick. Start the next
+    // newest pose now instead of waiting up to one more refresh interval.
+    dispatchLatest();
   };
   worker.onerror=event=>{if(!disposed)fail(event.message||'干涉检测线程失败');};
   const init:CollisionRequest={type:'init',shard:index,shardCount:workerCount,parts:collisionParts.map(p=>({...p,group:groups.get(p.id)??'fixed'})),exclusions};
@@ -97,19 +109,16 @@ export function createCollisionDisplay(data:CadData,meshes:Map<number,T.Mesh>,on
   });
   onStatus(status);
   return {
-    changed(){
+    changed(frame?:Frame){
       revision++;
-      desired=capture();
+      desired=capture(frame);
       if(failed)return;
       place(displayed);
       if(!status.pending)publish({pending:true,requestedRevision:revision});
     },
     update(visible:boolean){
       if(enabled!==visible){enabled=visible;epoch++;if(!visible)clear();else applied=-1;}
-      if(!enabled||failed||!ready||busy||applied===revision)return;
-      busy=true;batchStarted=performance.now();batchEpoch=epoch;inFlight=desired;completed.clear();publish({pending:true,requestedRevision:revision});
-      const request:CollisionRequest={type:'check',revision,matrices:inFlight};
-      workers.forEach(worker=>worker.postMessage(request));
+      dispatchLatest();
     },
     dispose(){disposed=true;workers.forEach(worker=>worker.terminate());clear();for(const lines of edges.values()){lines.removeFromParent();lines.geometry.dispose();}edges.clear();hidden.dispose();edgeMaterial.dispose();red.dispose();},
   };

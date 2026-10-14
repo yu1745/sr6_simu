@@ -19,6 +19,8 @@ pnpm dev
 
 ## 构建与部署
 
+STEP 模式可下载固定在装配零位的完整 STEP（ZIP 内含 `.stp`，78 个实体）。该姿态与网页“恢复装配零位”一致，下载内容不随当前动画变化。构建时会核对 STEP 与网页 CAD 的 SHA-256，再生成 ZIP；压缩仅为满足静态资源单文件大小限制，不修改实体几何。
+
 ```sh
 pnpm build
 node node_modules/wrangler/bin/wrangler.js deploy --config dist/server/wrangler.json

@@ -58,7 +58,7 @@ def fit_motor_base(parts, transform):
         'part_scale':1}
 
 
-def fit_pitch_link(parts, eye, base_fit, transform, frame, cylinder):
+def fit_pitch_link(parts, eye, base_fit, transform, frame, cylinder, ball):
     shape = cq.importers.importStep(str(INPUTS/'pitch-replacement-0.stp')).val().Solids()[0]
     holes = sorted(circle_centers(shape,3), key=lambda p:p[1])
     assert len(holes) == 4
@@ -72,7 +72,7 @@ def fit_pitch_link(parts, eye, base_fit, transform, frame, cylinder):
     span = local_upper-local_lower
     length = float(np.linalg.norm(span))
     old_lower = np.array([345,58.999984,-29])
-    upper = np.array([183.062295,270.186359,34])
+    upper = np.array([183.062295,270.186359,39])
     pivot = np.array([240,58.999984,-29])+np.array(base_fit['shifts']['pitch_right'])
     delta = upper-pivot
     cosine = (np.dot(delta,delta)+105**2-length**2)/(210*np.linalg.norm(delta[:2]))
@@ -95,11 +95,8 @@ def fit_pitch_link(parts, eye, base_fit, transform, frame, cylinder):
     stem = rotation@axis
     parts[53] = transform(eye,frame(stem),lower)
     parts[51] = transform(eye,frame(-stem),upper)
-    original_ball_center = np.array([-55,58.999984,-147])
-    # Main bearing21 may already be moved, so import the unmodified source ball.
-    ball = cq.importers.importStep(str(INPUTS.parents[1].parent/'sr6_mini.stp')).val().Solids()[21]
-    parts[52] = ball.translate(tuple(lower-original_ball_center))
-    parts[50] = ball.translate(tuple(upper-original_ball_center))
+    parts[52] = ball.translate(tuple(lower))
+    parts[50] = ball.translate(tuple(upper))
     r = np.array([[math.cos(angle),-math.sin(angle),0],[math.sin(angle),math.cos(angle),0],[0,0,1]])
     parts[17] = transform(parts[17],r,pivot-r@pivot)
     parts[17] = parts[17].cut(cylinder(3.25,240,(lower[0],lower[1],-190))).clean()
@@ -127,7 +124,7 @@ def add_opposite_pitch(parts, names, pitch_fit, transform, cylinder):
     source_lower, source_upper = point(right['lower']), point(right['upper'])
     pivot = point(right['pivot'])
     # Outer left receiver face plus half the existing nine-mm ball width.
-    upper = np.array([right['upper'][0], right['upper'][1], -154.671573-4.5])
+    upper = np.array([right['upper'][0], right['upper'][1], -154.671573-9.5])
     length = right['length']
     delta = upper-pivot
     cosine = (np.dot(delta,delta)+105**2-length**2)/(210*np.linalg.norm(delta[:2]))

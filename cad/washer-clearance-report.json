@@ -1,0 +1,2316 @@
+{
+  "local_joint_sweep": [
+    {
+      "angle": 0,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 1.6295026661703131,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 0,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 1.6295026661703131,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 1,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 1.5220708686017006,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 1,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 1.5220708686017017,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 2,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 1.4146515878538317,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 2,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 1.4146515878538328,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 3,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 1.3072846626995314,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 3,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 1.3072846626995334,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 4,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 1.2000212385296065,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 4,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 1.2000212385296076,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 5,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 1.0929292695320654,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 5,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 1.0929292695320667,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 6,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.9861025474448312,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 6,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.986102547444833,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 7,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.8796761695044633,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 7,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.8796761695044645,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 8,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.7738544186786257,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 8,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.7738544186786269,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 9,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.6689641461780238,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 9,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.668964146178025,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 10,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.5655646424527444,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 10,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.5655646424527455,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 11,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.46469404170454703,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 11,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.464694041704549,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 12,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.3684782864377387,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 12,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.3684782864377398,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 13,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.2817709515859849,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 13,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.28177095158598586,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 14,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.21636448750774778,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 14,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.21636448750774748,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 15,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504382,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 15,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504332,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 16,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504435,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 16,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.1945146413950437,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 17,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504324,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 17,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504368,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 18,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504343,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 18,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504385,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 19,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504376,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 19,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504415,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 20,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504376,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 20,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.1945146413950437,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 21,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.194514641395044,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 21,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504382,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 22,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504426,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 22,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504349,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 23,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504404,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 23,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.19451464139504362,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 24,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.19107487919407973,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 24,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.19107487919408195,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 25,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.09854417414238137,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 25,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.09854417414238315,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 26,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.004963009128443385,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 26,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0049630091284442734,
+      "washer_overlap_mm3": 0.0,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 27,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.005475255573716827,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 27,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.005475252941670898,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 28,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.03314364675143601,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 28,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.033143637423925405,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 29,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.0930243546249286,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 29,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.09302432537714664,
+      "pin_overlap_mm3": 0.0
+    },
+    {
+      "angle": 30,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.18164374488376098,
+      "pin_overlap_mm3": 0.0005893283679890386
+    },
+    {
+      "angle": 30,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.18164369162335886,
+      "pin_overlap_mm3": 0.0005891863125237345
+    },
+    {
+      "angle": 31,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.29129065843116064,
+      "pin_overlap_mm3": 0.02314944772185007
+    },
+    {
+      "angle": 31,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.29129059008688757,
+      "pin_overlap_mm3": 0.023149154474048972
+    },
+    {
+      "angle": 32,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.42085188376277044,
+      "pin_overlap_mm3": 0.09662938631296358
+    },
+    {
+      "angle": 32,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.42085184498324524,
+      "pin_overlap_mm3": 0.09662904560093288
+    },
+    {
+      "angle": 33,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.5847652468209438,
+      "pin_overlap_mm3": 0.23898086382848938
+    },
+    {
+      "angle": 33,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.5847652174964095,
+      "pin_overlap_mm3": 0.23898005474954687
+    },
+    {
+      "angle": 34,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.7985735113649595,
+      "pin_overlap_mm3": 0.46483346596795827
+    },
+    {
+      "angle": 34,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 0.7985734828733042,
+      "pin_overlap_mm3": 0.46483238233772495
+    },
+    {
+      "angle": 35,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 1.076236617513589,
+      "pin_overlap_mm3": 0.78729790177024
+    },
+    {
+      "angle": 35,
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "washer_gap_mm": 0.0,
+      "washer_overlap_mm3": 1.076236629622913,
+      "pin_overlap_mm3": 0.7872966651522875
+    }
+  ],
+  "assembly_samples": [
+    {
+      "roll": -25,
+      "pitch": -25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            19,
+            38
+          ],
+          "volume_mm3": 67.20366
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.033535
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.033535
+        },
+        {
+          "parts": [
+            34,
+            54
+          ],
+          "volume_mm3": 0.004208
+        },
+        {
+          "parts": [
+            34,
+            55
+          ],
+          "volume_mm3": 0.004208
+        }
+      ],
+      "upper_joint_angles_deg": [
+        25.237,
+        22.3585,
+        25.6685,
+        28.0092,
+        25.1858,
+        26.9053
+      ]
+    },
+    {
+      "roll": -25,
+      "pitch": -12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.059222
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.059222
+        },
+        {
+          "parts": [
+            34,
+            54
+          ],
+          "volume_mm3": 0.004208
+        },
+        {
+          "parts": [
+            34,
+            55
+          ],
+          "volume_mm3": 0.004208
+        }
+      ],
+      "upper_joint_angles_deg": [
+        25.237,
+        22.3585,
+        25.9542,
+        28.5091,
+        25.1858,
+        26.9053
+      ]
+    },
+    {
+      "roll": -25,
+      "pitch": 0,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.075729
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.075729
+        },
+        {
+          "parts": [
+            34,
+            54
+          ],
+          "volume_mm3": 0.004208
+        },
+        {
+          "parts": [
+            34,
+            55
+          ],
+          "volume_mm3": 0.004208
+        }
+      ],
+      "upper_joint_angles_deg": [
+        25.237,
+        22.3585,
+        26.068,
+        28.7631,
+        25.1858,
+        26.9053
+      ]
+    },
+    {
+      "roll": -25,
+      "pitch": 12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.074861
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.074861
+        },
+        {
+          "parts": [
+            34,
+            54
+          ],
+          "volume_mm3": 0.004208
+        },
+        {
+          "parts": [
+            34,
+            55
+          ],
+          "volume_mm3": 0.004208
+        }
+      ],
+      "upper_joint_angles_deg": [
+        25.237,
+        22.3585,
+        25.9573,
+        28.7506,
+        25.1858,
+        26.9053
+      ]
+    },
+    {
+      "roll": -25,
+      "pitch": 25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.057643
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.057643
+        },
+        {
+          "parts": [
+            34,
+            54
+          ],
+          "volume_mm3": 0.004208
+        },
+        {
+          "parts": [
+            34,
+            55
+          ],
+          "volume_mm3": 0.004208
+        }
+      ],
+      "upper_joint_angles_deg": [
+        25.237,
+        22.3585,
+        25.6123,
+        28.4826,
+        25.1858,
+        26.9053
+      ]
+    },
+    {
+      "roll": -12.5,
+      "pitch": -25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        13.8965,
+        10.141,
+        11.5106,
+        14.3922,
+        14.068,
+        13.5317
+      ]
+    },
+    {
+      "roll": -12.5,
+      "pitch": -12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        13.8965,
+        10.141,
+        11.3137,
+        14.7789,
+        14.068,
+        13.5317
+      ]
+    },
+    {
+      "roll": -12.5,
+      "pitch": 0,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        13.8965,
+        10.141,
+        11.1395,
+        15.041,
+        14.068,
+        13.5317
+      ]
+    },
+    {
+      "roll": -12.5,
+      "pitch": 12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        13.8965,
+        10.141,
+        10.9257,
+        15.1503,
+        14.068,
+        13.5317
+      ]
+    },
+    {
+      "roll": -12.5,
+      "pitch": 25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        13.8965,
+        10.141,
+        10.6455,
+        15.107,
+        14.068,
+        13.5317
+      ]
+    },
+    {
+      "roll": 0,
+      "pitch": -25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        2.704,
+        6.9394,
+        5.1778,
+        1.3808,
+        3.1106,
+        1.1105
+      ]
+    },
+    {
+      "roll": 0,
+      "pitch": -12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        2.704,
+        6.9394,
+        4.9526,
+        0.9467,
+        3.1106,
+        1.1105
+      ]
+    },
+    {
+      "roll": 0,
+      "pitch": 0,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        2.704,
+        6.9394,
+        4.8839,
+        0.8289,
+        3.1106,
+        1.1105
+      ]
+    },
+    {
+      "roll": 0,
+      "pitch": 12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        2.704,
+        6.9394,
+        4.8898,
+        0.8927,
+        3.1106,
+        1.1105
+      ]
+    },
+    {
+      "roll": 0,
+      "pitch": 25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        2.704,
+        6.9394,
+        4.9295,
+        1.0094,
+        3.1106,
+        1.1105
+      ]
+    },
+    {
+      "roll": 12.5,
+      "pitch": -25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        11.3036,
+        16.9679,
+        18.2439,
+        14.1401,
+        11.1997,
+        11.5645
+      ]
+    },
+    {
+      "roll": 12.5,
+      "pitch": -12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        11.3036,
+        16.9679,
+        18.507,
+        14.1076,
+        11.1997,
+        11.5645
+      ]
+    },
+    {
+      "roll": 12.5,
+      "pitch": 0,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        11.3036,
+        16.9679,
+        18.6833,
+        14.0385,
+        11.1997,
+        11.5645
+      ]
+    },
+    {
+      "roll": 12.5,
+      "pitch": 12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        11.3036,
+        16.9679,
+        18.7281,
+        13.8842,
+        11.1997,
+        11.5645
+      ]
+    },
+    {
+      "roll": 12.5,
+      "pitch": 25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        11.3036,
+        16.9679,
+        18.6301,
+        13.6268,
+        11.1997,
+        11.5645
+      ]
+    },
+    {
+      "roll": 25,
+      "pitch": -25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 0.077258
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 0.393295
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 0.393295
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.059983
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.059983
+        },
+        {
+          "parts": [
+            34,
+            38
+          ],
+          "volume_mm3": 1.111643
+        }
+      ],
+      "upper_joint_angles_deg": [
+        24.4559,
+        27.7154,
+        31.8036,
+        28.5216,
+        24.3732,
+        23.0302
+      ]
+    },
+    {
+      "roll": 25,
+      "pitch": -12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 0.11887
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 0.450034
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 0.450034
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.086709
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.086709
+        }
+      ],
+      "upper_joint_angles_deg": [
+        24.4559,
+        27.7154,
+        32.1982,
+        28.916,
+        24.3732,
+        23.0302
+      ]
+    },
+    {
+      "roll": 25,
+      "pitch": 0,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 0.13984
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 0.475836
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 0.475836
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.10018
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.10018
+        }
+      ],
+      "upper_joint_angles_deg": [
+        24.4559,
+        27.7154,
+        32.3654,
+        29.0922,
+        24.3732,
+        23.0302
+      ]
+    },
+    {
+      "roll": 25,
+      "pitch": 12.5,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 0.128567
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 0.462142
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 0.462142
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.093945
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.093944
+        }
+      ],
+      "upper_joint_angles_deg": [
+        24.4559,
+        27.7154,
+        32.2775,
+        29.012,
+        24.3732,
+        23.0302
+      ]
+    },
+    {
+      "roll": 25,
+      "pitch": 25,
+      "stickLength": 0,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 0.02233
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 0.090508
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 0.412398
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 0.412398
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.069728
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.069728
+        }
+      ],
+      "upper_joint_angles_deg": [
+        24.4559,
+        27.7154,
+        31.9407,
+        28.6749,
+        24.3732,
+        23.0302
+      ]
+    },
+    {
+      "roll": -25,
+      "pitch": -25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M1 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": -25,
+      "pitch": -12.5,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 1.231461
+        },
+        {
+          "parts": [
+            24,
+            66
+          ],
+          "volume_mm3": 0.973858
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 1.231461
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 8.151385
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 7.890085
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 7.874899
+        },
+        {
+          "parts": [
+            51,
+            38
+          ],
+          "volume_mm3": 78.673902
+        },
+        {
+          "parts": [
+            51,
+            68
+          ],
+          "volume_mm3": 45.954139
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 27.247359
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 32.017868
+        },
+        {
+          "parts": [
+            29,
+            55
+          ],
+          "volume_mm3": 8.731913
+        },
+        {
+          "parts": [
+            29,
+            64
+          ],
+          "volume_mm3": 8.916229
+        },
+        {
+          "parts": [
+            29,
+            72
+          ],
+          "volume_mm3": 8.664129
+        }
+      ],
+      "upper_joint_angles_deg": [
+        18.65,
+        35.4656,
+        42.9014,
+        54.4612,
+        43.3604,
+        23.2714
+      ]
+    },
+    {
+      "roll": -25,
+      "pitch": 0,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 1.491614
+        },
+        {
+          "parts": [
+            24,
+            66
+          ],
+          "volume_mm3": 1.290379
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 1.491614
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 11.814357
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 12.065767
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 11.455359
+        },
+        {
+          "parts": [
+            51,
+            38
+          ],
+          "volume_mm3": 37.491816
+        },
+        {
+          "parts": [
+            51,
+            68
+          ],
+          "volume_mm3": 35.260717
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 24.473021
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 28.532588
+        },
+        {
+          "parts": [
+            29,
+            55
+          ],
+          "volume_mm3": 7.94443
+        },
+        {
+          "parts": [
+            29,
+            64
+          ],
+          "volume_mm3": 8.201654
+        },
+        {
+          "parts": [
+            29,
+            72
+          ],
+          "volume_mm3": 7.927077
+        }
+      ],
+      "upper_joint_angles_deg": [
+        19.0273,
+        36.1437,
+        44.8893,
+        52.2931,
+        42.9323,
+        22.2631
+      ]
+    },
+    {
+      "roll": -25,
+      "pitch": 12.5,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M4 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": -25,
+      "pitch": 25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M4 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": -12.5,
+      "pitch": -25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M1 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": -12.5,
+      "pitch": -12.5,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 0.001295
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 0.001295
+        }
+      ],
+      "upper_joint_angles_deg": [
+        9.7094,
+        14.5961,
+        18.5881,
+        26.5847,
+        23.1063,
+        11.1631
+      ]
+    },
+    {
+      "roll": -12.5,
+      "pitch": 0,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        9.5883,
+        15.0137,
+        20.0151,
+        26.0713,
+        23.145,
+        10.6567
+      ]
+    },
+    {
+      "roll": -12.5,
+      "pitch": 12.5,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        10.1097,
+        14.7662,
+        18.8506,
+        26.4135,
+        22.6931,
+        10.8844
+      ]
+    },
+    {
+      "roll": -12.5,
+      "pitch": 25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M4 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": 0,
+      "pitch": -25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M1 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": 0,
+      "pitch": -12.5,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        2.7108,
+        6.9396,
+        5.128,
+        1.0678,
+        3.1108,
+        1.1133
+      ]
+    },
+    {
+      "roll": 0,
+      "pitch": 0,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        2.704,
+        6.9394,
+        4.8839,
+        0.8289,
+        3.1106,
+        1.1105
+      ]
+    },
+    {
+      "roll": 0,
+      "pitch": 12.5,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [],
+      "upper_joint_angles_deg": [
+        2.7121,
+        6.9448,
+        5.5221,
+        2.1682,
+        3.1127,
+        1.1137
+      ]
+    },
+    {
+      "roll": 0,
+      "pitch": 25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M3 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": 12.5,
+      "pitch": -25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M1 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": 12.5,
+      "pitch": -12.5,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 0.002653
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 0.002653
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 0.05422
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 0.356453
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 0.356453
+        }
+      ],
+      "upper_joint_angles_deg": [
+        12.1138,
+        26.7616,
+        31.5263,
+        22.0609,
+        17.7791,
+        10.6007
+      ]
+    },
+    {
+      "roll": 12.5,
+      "pitch": 0,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 0.00253
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 0.00253
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 0.008921
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 0.243811
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 0.243811
+        }
+      ],
+      "upper_joint_angles_deg": [
+        11.7729,
+        26.7482,
+        30.5882,
+        23.533,
+        18.1424,
+        10.6331
+      ]
+    },
+    {
+      "roll": 12.5,
+      "pitch": 12.5,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 0.036643
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 0.323075
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 0.323075
+        }
+      ],
+      "upper_joint_angles_deg": [
+        11.938,
+        26.2568,
+        31.2618,
+        22.5082,
+        17.8733,
+        11.0394
+      ]
+    },
+    {
+      "roll": 12.5,
+      "pitch": 25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M3 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": 25,
+      "pitch": -25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M1 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": 25,
+      "pitch": -12.5,
+      "stickLength": 220,
+      "valid": true,
+      "reason": "",
+      "contacts": [
+        {
+          "parts": [
+            19,
+            38
+          ],
+          "volume_mm3": 0.272959
+        },
+        {
+          "parts": [
+            24,
+            57
+          ],
+          "volume_mm3": 18.47259
+        },
+        {
+          "parts": [
+            24,
+            66
+          ],
+          "volume_mm3": 17.414179
+        },
+        {
+          "parts": [
+            24,
+            73
+          ],
+          "volume_mm3": 15.928475
+        },
+        {
+          "parts": [
+            61,
+            38
+          ],
+          "volume_mm3": 116.432998
+        },
+        {
+          "parts": [
+            61,
+            70
+          ],
+          "volume_mm3": 80.952274
+        },
+        {
+          "parts": [
+            61,
+            71
+          ],
+          "volume_mm3": 1.63303
+        },
+        {
+          "parts": [
+            61,
+            76
+          ],
+          "volume_mm3": 33.146838
+        },
+        {
+          "parts": [
+            61,
+            77
+          ],
+          "volume_mm3": 39.26629
+        },
+        {
+          "parts": [
+            51,
+            68
+          ],
+          "volume_mm3": 17.285772
+        },
+        {
+          "parts": [
+            51,
+            74
+          ],
+          "volume_mm3": 17.110283
+        },
+        {
+          "parts": [
+            51,
+            75
+          ],
+          "volume_mm3": 15.462376
+        },
+        {
+          "parts": [
+            29,
+            55
+          ],
+          "volume_mm3": 3.2329
+        },
+        {
+          "parts": [
+            29,
+            64
+          ],
+          "volume_mm3": 3.365608
+        },
+        {
+          "parts": [
+            29,
+            72
+          ],
+          "volume_mm3": 3.232901
+        }
+      ],
+      "upper_joint_angles_deg": [
+        23.6265,
+        47.2438,
+        59.9319,
+        46.9976,
+        39.0865,
+        19.7377
+      ]
+    },
+    {
+      "roll": 25,
+      "pitch": 0,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M3 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": 25,
+      "pitch": 12.5,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M3 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    },
+    {
+      "roll": 25,
+      "pitch": 25,
+      "stickLength": 220,
+      "valid": false,
+      "reason": "CAD M3 \u8d85\u51fa\u5b9e\u6d4b\u8fde\u6746\u53ef\u8fbe\u8303\u56f4\uff0c\u4fdd\u7559\u4e0a\u4e00 CAD \u4f4d\u59ff",
+      "contacts": [],
+      "upper_joint_angles_deg": []
+    }
+  ],
+  "note": "Sampled nominal rigid geometry; not bearing load rating or continuous workspace certification."
+}

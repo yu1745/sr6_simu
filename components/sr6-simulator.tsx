@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { Box, RotateCcw, Maximize2, TriangleAlert } from 'lucide-react';
+import { Box, RotateCcw, Maximize2, TriangleAlert, Download } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ZERO, NAMES, inverse, forward, evaluate, type Pose } from '@/lib/sr6/kinematics';
 import { geometry, shaftClearance } from '@/lib/sr6/geometry';
@@ -11,6 +11,19 @@ import { FunscriptControls } from './funscript-controls';
 import type { CollisionStatus } from '@/lib/sr6/collision';
 
 import { DEFAULT_STICK, solveStick, tipFromReceiver, type StickSettings } from '@/lib/sr6/virtual-stick';
+import { NO_ACCELERATION, torqueExpression, type Acceleration, type TorqueAnalysis } from '@/lib/sr6/statics';
+import { createPayloadMotionEstimator } from '@/lib/sr6/payload-motion';
+import { useStoredSetting } from '@/lib/sr6/use-stored-setting';
+import { type RobotDynamics, type RobotMotion } from '@/lib/sr6/rigid-dynamics';
+import { type MassProperties } from '@/lib/sr6/mass-properties';
+import { MaterialInspector } from './material-inspector';
+
+const validStick=(v:unknown):v is StickSettings=>{
+  if(!v||typeof v!=='object')return false;
+  const s=v as Partial<StickSettings>;
+  return typeof s.enabled==='boolean'&&typeof s.length==='number'&&Number.isFinite(s.length)&&s.length>=1&&s.length<=300;
+};
+const validWeight=(v:unknown):v is number=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
 
 const rad=Math.PI/180;
 const definitions: {key:keyof Pose;name:string;unit:string;factor:number;limit:number}[] = [
@@ -27,7 +40,16 @@ function Field({name,value,unit,onChange,min,max}:{name:string;value:number;unit
 export function Sr6Simulator(){
   const canvas=useRef<HTMLCanvasElement>(null);
   const [pose,setPose]=useState<Pose>({...ZERO});
-  const [stick,setStick]=useState<StickSettings>({...DEFAULT_STICK});
+  const [stick,setStick]=useStoredSetting('sr6.settings.v1.stick',DEFAULT_STICK,validStick);
+  const [weightN,setWeightN]=useStoredSetting('sr6.settings.v1.weightN',0,validWeight);
+  const [acceleration,setAcceleration]=useState<Acceleration>(NO_ACCELERATION);
+  const [motionEstimator]=useState(createPayloadMotionEstimator);
+  const [motionSample,setMotionSample]=useState(()=>motionEstimator.getStatus());
+  const [torques,setTorques]=useState<TorqueAnalysis|null>(null);
+  const [robotMotion,setRobotMotion]=useState<RobotMotion|null>(null);
+  const dynamics=useRef<RobotDynamics|null>(null);
+  const [massData,setMassData]=useState<MassProperties|null>(null);
+  const [selectedPart,setSelectedPart]=useState<number|null>(null);
   const [stickScale,setStickScale]=useState(1);
   const lastTarget=useRef<Pose>({...ZERO});
   const [q,setQ]=useState<number[]>(()=>Array(6).fill(0));
@@ -38,24 +60,54 @@ export function Sr6Simulator(){
   const [view,setView]=useState('cad');
   const [cadMessage,setCadMessage]=useState('CAD 正在加载');
   const [cadStatus,setCadStatus]=useState<CadStatus|null>(null);
+  const [frameRate,setFrameRate]=useState<number|null>(null);
+  const [physicsRate,setPhysicsRate]=useState<number|null>(null);
+  const physicsSamples=useRef({start:0,count:0,last:0});
+  const [solveRate,setSolveRate]=useState<number|null>(null);
+  const [collisionRate,setCollisionRate]=useState<number|null>(null);
   const [collision,setCollision]=useState<CollisionStatus|null>(null);
   const [error,setError]=useState('');
   const [ms,setMs]=useState<number|null>(null);
   const [iterations,setIterations]=useState(0);
-  const lastGood=useRef<SceneState>({pose:{...ZERO},q:Array(6).fill(0),cad:true});
-  const sceneState=useRef<SceneState>(lastGood.current);
+  const lastGood=useRef<{pose:Pose;q:number[];cad:boolean}>({pose:{...ZERO},q:Array(6).fill(0),cad:true});
+  const sceneState=useRef<SceneState>({pose:{...ZERO},q:Array(6).fill(0),cad:true,stickLength:DEFAULT_STICK.length,weightN:0,acceleration:NO_ACCELERATION,robotMotion:null,selectedPart:null});
   const valid=error==='';
-  sceneState.current={...lastGood.current,cad:view==='cad'};
+  sceneState.current={...lastGood.current,cad:view==='cad',stickLength:stick.length,weightN,acceleration,robotMotion,selectedPart};
   const [renderError,setRenderError]=useState('');
   const residual=view==='cad' ? (cadSolver.current?.evaluate(lastGood.current.pose,lastGood.current.q) ?? {max:Infinity}) : evaluate(lastGood.current.pose,lastGood.current.q);
   const clearance=shaftClearance(geometry(lastGood.current.pose,lastGood.current.q));
 
   useEffect(()=>{
     if(!canvas.current)return;
-    try{return mountScene(canvas.current,()=>sceneState.current,setCadMessage,setCadStatus,solver=>{cadSolver.current=solver;setCadReady(true);},setCollision);}
+    try{return mountScene(canvas.current,()=>sceneState.current,setCadMessage,setCadStatus,(solver,model,masses)=>{cadSolver.current=solver;dynamics.current=model;setMassData(masses);setCadReady(true);},setCollision,setTorques,setSelectedPart,setFrameRate,setSolveRate,setCollisionRate);}
     catch(e){setRenderError(e instanceof Error?e.message:String(e));}
   },[mountScene]);
-  function applyPose(next:Pose,fromScript=false,config=stick):boolean{
+  useEffect(()=>{
+    const timer=window.setInterval(()=>{
+      if(physicsSamples.current.last&&performance.now()-physicsSamples.current.last>1000){
+        physicsSamples.current={start:0,count:0,last:0};setPhysicsRate(null);
+      }
+    },250);
+    return ()=>window.clearInterval(timer);
+  },[]);
+  function recordPhysicsSample(now:number){
+    const samples=physicsSamples.current;
+    if(!samples.start)samples.start=now;
+    samples.last=now;samples.count++;
+    const elapsed=now-samples.start;
+    if(elapsed>=1000){setPhysicsRate(Math.round((samples.count-1)*1000/elapsed));samples.start=now;samples.count=1;}
+  }
+  function stopMotion(){motionEstimator.reset();dynamics.current?.reset();physicsSamples.current={start:0,count:0,last:0};setPhysicsRate(null);setRobotMotion(null);setAcceleration(NO_ACCELERATION);setMotionSample(motionEstimator.getStatus());}
+  function freezeMotion(){
+    // Keep the last pose's acceleration for inspection, but discard derivative
+    // history so resuming never treats the pause as elapsed motion time.
+    motionEstimator.reset();
+    dynamics.current?.reset();
+    physicsSamples.current={start:0,count:0,last:0};setPhysicsRate(null);
+    setMotionSample(previous=>({...previous,state:'paused'}));
+  }
+  function applyPose(next:Pose,fromScript=false,config=stick,timeMs?:number):boolean{
+    if(timeMs===undefined)stopMotion();
     if(!fromScript)setScriptStopToken(v=>v+1);
     if(view==='cad'&&!cadSolver.current){setError('CAD 正在加载');return false;}
     setPose(next);const start=performance.now();const result=solveStick(next,config,p=>view==='cad'?cadSolver.current!.inverse(p,lastGood.current.q):inverse(p));
@@ -65,10 +117,19 @@ export function Sr6Simulator(){
     const inLimits=fromScript||definitions.every(d=>Math.abs(next[d.key]/d.factor)<=d.limit+1e-9);
     const message=!inLimits?'超出当前输入范围':result.reason;
     setError(message);
-    if(!message){setQ(result.q);setStickScale(result.scale);lastTarget.current=next;lastGood.current={pose:result.receiver,q:result.q,cad:view==='cad'};}
+    if(!message){
+      setQ(result.q);setStickScale(result.scale);lastTarget.current=next;lastGood.current={pose:result.receiver,q:result.q,cad:view==='cad'};
+      if(timeMs!==undefined){
+        setAcceleration(motionEstimator.update(result.receiver,timeMs));setMotionSample(motionEstimator.getStatus());
+        const sample=view==='cad'&&dynamics.current?dynamics.current.sample(result.receiver,result.q,config.length,timeMs):null;
+        setRobotMotion(sample);
+        if(sample)recordPhysicsSample(timeMs);
+      }
+    }else stopMotion();
     return !message;
   }
   function applyAngles(next:number[],twist=pose.twist){
+    stopMotion();
     setScriptStopToken(v=>v+1);
     if(view==='cad'&&!cadSolver.current){setError('CAD 正在加载');return;}
     setQ(next);const start=performance.now();const result=view==='cad'?cadSolver.current!.forward(next,twist,lastGood.current.pose):forward(next,twist,lastGood.current.pose);
@@ -79,6 +140,7 @@ export function Sr6Simulator(){
     if(!message){setStickScale(1);lastTarget.current=target;lastGood.current={pose:result.pose,q:next,cad:view==='cad'};}
   }
   function changeView(value:string){
+    stopMotion();setTorques(null);
     setScriptStopToken(v=>v+1);
     setView(value);setMode('pose');setPose({...ZERO});lastTarget.current={...ZERO};setStickScale(1);setError('');setMs(null);setIterations(0);
     const next=value==='cad'?Array(6).fill(0):inverse(ZERO).q;
@@ -86,6 +148,7 @@ export function Sr6Simulator(){
   }
   function reset(){changeView(view);}
   function changeMode(value:string){
+    stopMotion();
     setScriptStopToken(v=>v+1);
     setMode(value);setPose(lastTarget.current);setQ(lastGood.current.q);setError('');
   }
@@ -108,25 +171,49 @@ export function Sr6Simulator(){
     <section className="workspace">
       <aside className="control-panel">
         <div className="panel-heading"><div><span>输入</span><strong>机构控制</strong></div></div>
-        <FunscriptControls stick={stick} onStick={next=>{setStick(next);setMode('pose');applyPose(pose,true,next);setScriptStopToken(v=>v+1);}} ready={view!=='cad'||cadReady} stopToken={scriptStopToken} onPose={next=>{setMode('pose');return applyPose(next,true);}}/>
+        <FunscriptControls stick={stick} weightN={weightN} onWeight={setWeightN} onPause={freezeMotion} onStick={next=>{setStick(next);setMode('pose');applyPose(pose,true,next);setScriptStopToken(v=>v+1);}} ready={view!=='cad'||cadReady} stopToken={scriptStopToken} onPose={(next,timeMs)=>{setMode('pose');return applyPose(next,true,stick,timeMs);}}/>
         <Tabs value={mode} onValueChange={changeMode}>
           <TabsList className="segmented"><TabsTrigger value="pose">位姿 → 逆解</TabsTrigger><TabsTrigger value="motors">电机 → 正解</TabsTrigger></TabsList>
           <TabsContent value="pose"><div className="control-section"><div className="section-label"><span>{stick.enabled?'虚拟杆尖目标':'目标位姿'}</span><small>{view==='cad'?'相对当前装配零位':'相对固件零位'}</small></div><div className="field-grid">{definitions.map(d=><Field key={d.key} name={d.name} unit={d.unit} value={pose[d.key]/d.factor} min={-d.limit} max={d.limit} onChange={v=>applyPose({...pose,[d.key]:v*d.factor})}/>)}</div></div></TabsContent>
           <TabsContent value="motors"><div className="control-section"><div className="section-label"><span>{view==='cad'?'实际摇臂角增量':'逻辑关节角'}</span><small>{view==='cad'?'相对装配零位':'非驱动器原始位置'}</small></div><div className="field-grid">{q.map((angle,i)=><Field key={i} name={`M${i+1}`} unit="°" value={angle/rad} onChange={v=>applyAngles(q.map((x,j)=>j===i?v*rad:x))}/>)}<Field name="R0 / Twist" unit="°" value={pose.twist/rad} onChange={v=>applyAngles(q,v*rad)}/></div></div></TabsContent>
         </Tabs>
         <button className="reset-button" onClick={reset}><RotateCcw size={16}/>{view==='cad'?'恢复装配零位':'恢复固件零位'}</button>
+        {view==='cad'&&<div className="step-download"><a href="/sr6_mini_centered_step.zip" download="sr6_mini_centered_step.zip"><Download size={16}/>下载回中 STEP（ZIP）</a><small>固定装配零位 · 78 个实体 · 与当前动画位置无关</small></div>}
         <div role="status" className={valid?'solver-status':'solver-status invalid'}>{view==='cad'&&!cadReady?'CAD 正在加载':valid?'闭环满足 · 当前位姿有效':`${error}；保持上一有效画面`}</div>
         {stick.enabled&&<div className="inspector-note"><span>虚拟杆补偿 · {(stickScale*100).toFixed(1)}%</span><p>实际接收器 Fwd {lastGood.current.pose.x.toFixed(2)} / Thrust {lastGood.current.pose.y.toFixed(2)} / Side {lastGood.current.pose.z.toFixed(2)} mm。{stickScale<1?'可达边界已缩小补偿，杆尖会偏离目标。':'按完整杆长补偿。'}</p></div>}
         <section className="joint-list"><div className="section-label"><span>{mode==='pose'?'逆解输出':'电机输入'}</span><small>°</small></div>{q.map((angle,i)=><div className="joint-row" key={i}><span>M{i+1}</span><span>{NAMES[i]}</span><strong>{(angle/rad).toFixed(3)}</strong></div>)}</section>
         {mode==='motors'&&<section className="control-section"><div className="section-label"><span>正解结果</span></div>{definitions.map(d=><div className="readout" key={d.key}><span>{d.name}</span><strong>{(pose[d.key]/d.factor).toFixed(3)} {d.unit}</strong></div>)}</section>}
       </aside>
-      <section className="viewport"><canvas ref={canvas}/><div className="viewport-label"><Tabs value={view} onValueChange={changeView}><TabsList className="segmented"><TabsTrigger value="live">固件运动骨架</TabsTrigger><TabsTrigger value="cad">STEP 运动装配</TabsTrigger></TabsList></Tabs><small>{view==='cad'?cadMessage:'连杆位置由 0909 正逆解驱动'}</small><small>左键旋转 · 右键平移 · 滚轮缩放</small></div>{renderError&&<p className="render-error" role="alert">{renderError}</p>}<div className="axis-legend">{view==='cad'?(cadStatus&&!cadStatus.valid?cadStatus.reason:'光轴 Ø10 × 210 · 球心距 258 · 叠放间距 14 mm'):'固件模型：主臂 105 · 连杆 262 · 光轴 220 mm'}</div></section>
+      <section className="viewport">
+        <canvas ref={canvas}/>
+        <div className="viewport-label"><strong>STEP 运动装配</strong><small>{cadMessage}</small><small>左键旋转 · 右键平移 · 滚轮缩放 · 单击零件查看材质与惯量</small></div>
+        <div className="frame-rate" aria-label="画面、动力学采样、机构求解和碰撞同步频率" title="动力学采样跟随脚本播放；碰撞同步完成后，新装配姿态才显示在画面中。">
+          <span>画面 <strong>{frameRate===null?'静止':`${frameRate} FPS`}</strong></span>
+          <span>动力学采样 <strong>{physicsRate===null?'静止':`${physicsRate} FPS`}</strong></span>
+          <span>机构求解 <strong>{solveRate===null?'静止':`${solveRate} FPS`}</strong></span>
+          <span>碰撞同步 <strong>{collisionRate===null?'静止':`${collisionRate} FPS`}</strong></span>
+        </div>
+        {view==='cad'&&massData&&selectedPart!==null&&<MaterialInspector data={massData} selected={selectedPart} onSelect={setSelectedPart} compact/>}
+        {renderError&&<p className="render-error" role="alert">{renderError}</p>}
+        <div className="axis-legend">{view==='cad'?(cadStatus&&!cadStatus.valid?cadStatus.reason:'光轴 Ø10 × 210 · 球心距 258 · 叠放间距 14 mm'):'固件模型：主臂 105 · 连杆 262 · 光轴 220 mm'}</div>
+      </section>
       <aside className="inspector"><div className="panel-heading"><div><span>检查</span><strong>闭环与间隙</strong></div></div>
         <div className="metric"><span>{view==='cad'?'实际装配闭环最大残差':'固件闭环最大残差'}</span><strong>{Number.isFinite(residual.max)?residual.max.toFixed(5):'—'} mm</strong><small>有效阈值 0.001 mm</small></div>
         {view==='cad'&&<div className="metric"><span>CAD 实测连杆闭环</span><strong>{cadStatus?.valid?`${cadStatus.residual.toFixed(5)} mm`:cadStatus?'不可达':'加载中'}</strong><small>按真实安装点独立求解，零件不缩放</small></div>}
         <div className="metric"><span>求解耗时</span><strong>{ms===null?'—':ms.toFixed(3)} ms</strong><small>{mode==='pose'?'闭式逆解':`阻尼 Gauss–Newton · ${iterations} 次迭代`}</small></div>
+        <section className="torque-panel" aria-label="六电机补偿扭矩"><div className="section-label"><span>电机补偿扭矩</span><small>N·m</small></div>
+          <p>总扭矩(重力补偿 + 惯量补偿)</p>
+          {Array.from({length:6},(_,i)=><div className="torque-row" key={i}><span>M{i+1}</span><strong>{torques?torqueExpression(torques,i):'—'}</strong></div>)}
+          {torques&&!torques.valid&&<p className="script-error">{torques.reason}</p>}
+          {torques?.valid&&torques.relativeResidual>.01&&<p className="script-error">接近奇异位形，阻尼分配平衡误差较大。</p>}
+          <p>{view==='cad'?'杆尖负载':'接收器'}加速度 Fwd / Thrust / Side：<span className="acceleration-values">{(torques?.acceleration??NO_ACCELERATION).map(v=>v.toExponential(2)).join(' / ')}</span> m/s²</p>
+          <p>{view==='cad'?'包含机构自重、杆尖负载、各运动组件的平移惯性与 Iα + ω×Iω。':'固件骨架沿用接收器中心点质量模型，不使用 CAD 零件惯量。'}</p>
+          <p>播放采样：{motionSample.state==='tracking'?`${motionSample.intervalMs.toFixed(0)} ms / ${(1000/motionSample.intervalMs).toFixed(1)} Hz`:motionSample.state==='paused'?'已暂停，保留最后一帧读数':motionSample.state==='gap'?'时间跳变或间隔超过 500 ms，重新采样':motionSample.state==='warming'?'等待下一帧':'已停止'}。低采样率会降低加速度估计精度。</p>
+          <p>正号对应电机正角度方向。播放时按 10 Hz 滤波估计加速度，各方向限幅 ±20 m/s²；暂停保留惯量项，继续播放重新采样；定位及手动输入时惯量项归零。</p>
+        </section>
+        {view==='cad'&&massData&&<MaterialInspector data={massData} selected={selectedPart} onSelect={setSelectedPart}/>}
         {view==='live'&&<div className="metric"><span>固件骨架光轴包络间隙</span><strong>{clearance.min.toFixed(2)} mm</strong><small>旧尺寸胶囊近似，不适用于新 CAD 装配</small></div>}
-        {view==='cad'&&<section className="collision-panel" aria-label="模型干涉检测"><div className="section-label"><span>模型干涉检测</span><small>{collision?.pending?`${collision.workers??1} 线程计算中`:collision?.ready?`${collision.elapsed.toFixed(0)} ms`:''}</small></div><strong className={collision?.pairs.length?'collision-hit':''}>{collision?.error?'检测不可用':!collision?.ready?'正在构建检测网格':collision.displayedRevision===undefined?'等待首次结果':collision.pairs.length?`${collision.pairs.length} 对零件干涉`:'本次采样未发现干涉'}</strong>{collision?.error&&<p>{collision.error}</p>}{collision?.details?.map((detail,i)=><p key={i}>{detail}</p>)}<p>按指定范围检查 {collision?.partCount??15} 个零件：接收器主体、上端鱼眼及俯仰二级摇臂。</p><p>红色：两零件布尔交集区域；特征边与视角轮廓：涉及零件（隐藏三角剖分线）。干涉消失后自动恢复。</p>{!!collision?.names.length&&<ul>{collision.names.map((name,i)=><li key={i}>{name}</li>)}</ul>}</section>}
+        {view==='cad'&&<section className="collision-panel" aria-label="模型干涉检测"><div className="section-label"><span>模型干涉检测</span><small>{collision?.pending?`${collision.workers??1} 线程计算中`:collision?.ready?`${collision.elapsed.toFixed(0)} ms`:''}</small></div><strong className={collision?.pairs.length?'collision-hit':''}>{collision?.error?'检测不可用':!collision?.ready?'正在构建检测网格':collision.displayedRevision===undefined?'等待首次结果':collision.pairs.length?`${collision.pairs.length} 对零件干涉`:'本次采样未发现干涉'}</strong>{collision?.error&&<p>{collision.error}</p>}{collision?.details?.map((detail,i)=><p key={i}>{detail}</p>)}<p>按指定范围检查 {collision?.partCount??33} 个零件：接收器主体、上端鱼眼、俯仰二级摇臂及接收器垫圈和紧固件。</p><p>红色：两零件布尔交集区域；特征边与视角轮廓：涉及零件（隐藏三角剖分线）。干涉消失后自动恢复。</p>{!!collision?.names.length&&<ul>{collision.names.map((name,i)=><li key={i}>{name}</li>)}</ul>}</section>}
         <div className="warning-card"><TriangleAlert size={20}/><div><strong>网格采样检测</strong><p>忽略同一刚性组件内部及已知连接配合，局部埋入补查容差0.03 mm。装配姿态与干涉结果同步更新，计算期间保持上一已检测画面，运动显示可能略滞后于脚本；高速运动、细小穿透和源模型缺陷可能漏检，不代表全行程无干涉。</p></div></div>
         <div className="inspector-note"><span>坐标与模型</span><strong>Fwd / Thrust / Side</strong><p>STEP模式按实测尺寸进行正逆解，M1–M6为相对装配零位的实际摇臂角。Fwd为前后、Thrust为升降、Side为侧移；Roll绕前后轴、Pitch绕横向轴，R0独立转动输出夹具。六个摇臂角需要满足同一接收器的闭合约束。切换模型时回到各自零位。</p></div>
       </aside>

@@ -1,9 +1,11 @@
 import * as T from 'three';
 import { ZERO, solveLinear, type Pose } from './kinematics.ts';
 import type { CadData } from './cad-rig.ts';
+import type { InverseJacobian } from './statics.ts';
 
 const keys = ['x', 'y', 'z', 'roll', 'pitch'] as const;
-const pivot = new T.Vector3(100.062295, 270.186359, -62.585786);
+export const CAD_PLATFORM_PIVOT = [100.062295, 270.186359, -62.585786] as const;
+const pivot = new T.Vector3(...CAD_PLATFORM_PIVOT);
 const wrap = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
 
 // Upright display: STEP X = up, STEP -Y = forward, STEP -Z = side.
@@ -49,6 +51,30 @@ export function createCadKinematics(data: CadData) {
     return {valid:residuals.every(Number.isFinite),residuals,max:Math.max(...residuals.map(Math.abs)),
       rms:Math.hypot(...residuals)/Math.sqrt(6)};
   }
+  // Differentiate each rigid rod constraint: r·(dUpper - dLower)=0.
+  // Thus dq_i/dp_j = r·(dUpper/dp_j) / r·(dLower/dq_i).
+  // This is the inverse-kinematics Jacobian, not the closure residual Jacobian.
+  function inverseJacobian(p:Pose,q:number[]):InverseJacobian{
+    const closure=evaluate(p,q);
+    if(!closure.valid||closure.max>1e-3)return {valid:false,values:[],reason:'静力分析需要已闭合的接收器位姿'};
+    const matrix=cadPlatform(p),rotation=new T.Quaternion().setFromRotationMatrix(matrix);
+    const rollAxis=new T.Vector3(0,1,0);
+    const pitchAxis=new T.Vector3(0,0,1).applyAxisAngle(rollAxis,p.roll);
+    const values:number[][]=[];
+    for(const [i,link] of links.entries()){
+      const a=link.initial+q[i];
+      const lower=link.pivot.clone().add(new T.Vector3(link.radius*Math.cos(a),link.radius*Math.sin(a),link.lower.z-link.pivot.z));
+      const r=link.upper.clone().applyMatrix4(matrix).sub(lower);
+      const denominator=r.dot(new T.Vector3(-link.radius*Math.sin(a),link.radius*Math.cos(a),0));
+      if(!Number.isFinite(denominator)||Math.abs(denominator)<1e-8)
+        return {valid:false,values:[],reason:`M${i+1} 接近运动学奇异位形`};
+      const offset=link.upper.clone().sub(pivot).applyQuaternion(rotation);
+      const derivatives=[new T.Vector3(0,-1,0),new T.Vector3(1,0,0),new T.Vector3(0,0,-1),
+        rollAxis.clone().cross(offset),pitchAxis.clone().cross(offset)];
+      values.push(derivatives.map(d=>r.dot(d)/denominator));
+    }
+    return {valid:values.every(row=>row.every(Number.isFinite)),values,reason:''};
+  }
   function forward(q: number[], twist: number, seed: Pose = ZERO) {
     let pose = {...seed,twist}, damping = 1e-4, iterations = 0;
     for (;iterations<60;iterations++) {
@@ -75,6 +101,6 @@ export function createCadKinematics(data: CadData) {
     const e = evaluate(pose,q);
     return {pose,iterations,converged:e.valid&&e.max<=1e-3,max:e.max,rms:e.rms};
   }
-  return {inverse,forward,evaluate};
+  return {inverse,forward,evaluate,inverseJacobian};
 }
 export type CadKinematics = ReturnType<typeof createCadKinematics>;

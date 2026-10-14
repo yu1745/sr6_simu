@@ -19,7 +19,7 @@ export const CAD_LINKS = [
   { motor: 4, crank: 14, baseX: 145, lower: 31, upper: 28, rod: [29, 30, 32] },
   { motor: 5, crank: 0, baseX: 50, lower: 36, upper: 33, rod: [34, 35, 37] },
 ] as const;
-const PLATFORM = [38, 39, 40, 46, 54, 55, 56, 57, 64, 65, 66, 67, 68, 69, 70, 71];
+const PLATFORM = [38, 39, 40, 46, 54, 55, 56, 57, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77];
 const TWIST = [41, 42, 43, 44, 45, 47, 48];
 const X = new T.Vector3(1, 0, 0), Z = new T.Vector3(0, 0, 1);
 // Circular hole centers measured from the STEP B-rep, in its original mm axes.
@@ -36,7 +36,7 @@ function rigid(rotation: T.Quaternion, sourceAnchor: T.Vector3, targetAnchor: T.
 
 export function createCadRig(data: CadData, meshes: Map<number, T.Mesh>) {
   if (data.source !== 'sr6_mini_complete.stp' || data.spec?.source_sha256 !== SOURCE_HASH
-    || data.sha256 !== data.spec.sha256 || data.parts.length !== 72 || data.spec.links.length !== 6)
+    || data.sha256 !== data.spec.sha256 || data.parts.length !== 78 || data.spec.links.length !== 6)
     throw new Error('STEP 版本与关节标定不匹配，请重新标定');
   const centers = new Map(data.parts.map(p => [p.id, new T.Vector3(...p.center)]));
   const links = CAD_LINKS.map(link => {

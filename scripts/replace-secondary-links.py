@@ -59,14 +59,16 @@ print('Fit supplied U_body_8108 motor base', flush=True)
 base_fit = fit_motor_base(parts, transform)
 names[1] = 'U_body_8108_replacement'
 
-# The existing POS6 housing already has the manufacturer dimensions: ball 12.7,
-# bore 6, ball width 9, head OD18, housing width6.75, center-to-tip36, shank22.
-# Reuse its machined head and simplified M6 male-cylinder representation.
-original_lower = vec([-55, 58.999984, -147])
-original_upper = vec([100.062295, 270.186359, -147])
-original_frame = frame(original_upper - original_lower)
-eye = transform(solids[22], original_frame.T, -original_frame.T @ original_lower)
-assert eye.isValid() and len(eye.Solids()) == 1
+# Supplier SA6T/K: preserve exact independent housing/ball solids.
+bearing_source = OUT/'inputs/SA6TK-jlcfa.step'
+supplier_eye, ball = cq.importers.importStep(str(bearing_source)).val().Solids()
+# Supplier stem points -Y and bore +Z; canonical stem +Z and bore +X.
+eye = transform(supplier_eye, np.array([[0,0,1],[-1,0,0],[0,-1,0]]), vec([0,0,0]))
+assert eye.isValid() and ball.isValid()
+# Stock steel sleeves: ID6 OD8, lengths5 and10; nominal dimensions.
+washer = cylinder(4,5).cut(cylinder(3,5)).clean()
+spacer = cylinder(4,10).cut(cylinder(3,10)).clean()
+assert washer.isValid() and spacer.isValid()
 
 # User requested no helical teeth. The simplified thread envelope is diameter6.05
 # for mating clearance, NOT the manufacturing tap-drill diameter (nominal5).
@@ -91,9 +93,9 @@ links = [
     dict(motor=0, crank=15, shaft=20, lower_ball=21, upper_ball=18, lower_eye=22, upper_eye=19,
          pivot=[50, 58.999984, -147], upper=[RECEIVER_X, RECEIVER_Y, LEFT_FACE - 9.5], initial=math.pi),
     dict(motor=1, crank=16, shaft=25, lower_ball=26, upper_ball=23, lower_eye=27, upper_eye=24,
-         pivot=[145, 58.999984, -147], upper=[RECEIVER_X, RECEIVER_Y, LEFT_FACE - 23.5], initial=math.atan2(55.285477-58.999984, 249.934277-145)),
+         pivot=[145, 58.999984, -147], upper=[RECEIVER_X, RECEIVER_Y, LEFT_FACE - 28.5], initial=math.atan2(55.285477-58.999984, 249.934277-145)),
     dict(motor=4, crank=14, shaft=30, lower_ball=31, upper_ball=28, lower_eye=32, upper_eye=29,
-         pivot=[145, 58.999984, 39], upper=[RECEIVER_X, RECEIVER_Y, RIGHT_FACE + 23.5], initial=0),
+         pivot=[145, 58.999984, 39], upper=[RECEIVER_X, RECEIVER_Y, RIGHT_FACE + 28.5], initial=0),
     dict(motor=5, crank=0, shaft=35, lower_ball=36, upper_ball=33, lower_eye=37, upper_eye=34,
          pivot=[50, 58.999984, 39], upper=[RECEIVER_X, RECEIVER_Y, RIGHT_FACE + 9.5], initial=math.pi),
 ]
@@ -115,7 +117,7 @@ for link in links:
     parts[link['upper_eye']] = transform(eye, frame(-direction), upper)
     # Inner balls retain the mounting pin's Z axis while the housing swivels.
     for key, center in [('lower_ball', lower), ('upper_ball', upper)]:
-        parts[link[key]] = solids[21].translate(tuple(center - original_lower))
+        parts[link[key]] = ball.translate(tuple(center))
     crank_rotation = rz(angle - link['initial'])
     parts[link['crank']] = transform(parts[link['crank']], crank_rotation, pivot - crank_rotation @ pivot)
     for key in ['crank', 'shaft', 'lower_eye', 'upper_eye', 'lower_ball', 'upper_ball']:
@@ -125,13 +127,13 @@ for link in links:
                          'shaft_start': (lower + direction * 24).tolist(),
                          'shaft_end': (upper - direction * 24).tolist()})
 
-# Four spacer nuts: receiver -> nut -> eye -> nut -> eye on each side.
+# Single relief washer and double-ended relief spacer on each receiver side.
 for side, face in [(1, RIGHT_FACE), (-1, LEFT_FACE)]:
-    for level, distance in enumerate([0, NUT_HEIGHT + BALL_WIDTH]):
+    for level, distance in enumerate([0, 5 + BALL_WIDTH]):
         origin = vec([RECEIVER_X, RECEIVER_Y, face + side * distance])
         rotation = np.eye(3) if side == 1 else reverse
         names[len(parts)] = f'receiver_{"right" if side == 1 else "left"}_spacer_{level+1}_M6'
-        parts.append(transform(nut, rotation, origin))
+        parts.append(transform(washer.rotate((0,0,0),(1,0,0),180).translate((0,0,5)) if level == 0 else spacer, rotation, origin))
 
 # Source receiver and crank mounting holes were diameter5; clear them to6.5
 # so the requested M6 bearing pin/bolt can pass through all mounting parts.
@@ -141,7 +143,7 @@ for link in report_links:
     parts[link['crank']] = parts[link['crank']].cut(cylinder(3.25, 240, (x, y, -190))).clean()
 
 print('Fit supplied pitch secondary arm and its two rod ends', flush=True)
-pitch_fit = fit_pitch_link(parts, eye, base_fit, transform, frame, cylinder)
+pitch_fit = fit_pitch_link(parts, eye, base_fit, transform, frame, cylinder, ball)
 names[49] = 'pitch_secondary_arm_replacement'
 for key in ['crank','lower_ball','upper_ball','lower_eye','upper_eye']:
     names[pitch_fit['link'][key]] = f'M4_{key}'
@@ -150,19 +152,18 @@ left_pitch = add_opposite_pitch(parts, names, pitch_fit, transform, cylinder)
 replacements = {'motor_base':base_fit, 'pitch_arm':pitch_fit, 'left_pitch_arm':left_pitch}
 (OUT/'replacement-fit.json').write_text(json.dumps(replacements,indent=2),encoding='utf-8')
 
-# Two complete clamps for the stacked main rod ends. Full-thread M6x40 is
-# specified so the intermediate spacer nuts can be screwed to any axial location.
+# Two complete clamps for the stacked main rod ends, M6x50 screws.
 # Head outwards for hex-key access; locking nut on the inside of the receiver.
 cap_head = cq.Workplane('XY').circle(5).extrude(6).edges('%CIRCLE').chamfer(0.3).val().translate((0,0,-6))
 socket = cq.Workplane('XY',origin=(0,0,-6.01)).polygon(6,5/math.cos(math.pi/6)).extrude(3.01).val()
-cap_bolt = cap_head.cut(socket).fuse(cylinder(3,40)).clean()
+cap_bolt = cap_head.cut(socket).fuse(cylinder(3,50)).clean()
 assert cap_bolt.isValid() and len(cap_bolt.Solids()) == 1
 fasteners = []
 for side, face in [(1,RIGHT_FACE),(-1,LEFT_FACE)]:
     rotation = reverse if side == 1 else np.eye(3)
     bolt_id = len(parts)
-    head_seat = [RECEIVER_X,RECEIVER_Y,face+side*28]
-    names[bolt_id] = f'receiver_{"right" if side == 1 else "left"}_M6x40_socket_cap_bolt'
+    head_seat = [RECEIVER_X,RECEIVER_Y,face+side*38]
+    names[bolt_id] = f'receiver_{"right" if side == 1 else "left"}_M6x50_socket_cap_bolt'
     parts.append(transform(cap_bolt,rotation,vec(head_seat)))
     nut_id = len(parts)
     nut_seat = [RECEIVER_X,RECEIVER_Y,face-side*4]
@@ -170,29 +171,42 @@ for side, face in [(1,RIGHT_FACE),(-1,LEFT_FACE)]:
     # Put a hex flat toward the nearby receiver bend to clear its inside radius.
     parts.append(transform(nut.rotate((0,0,0),(0,0,1),30),rotation,vec(nut_seat)))
     fasteners.append({'side':'right' if side == 1 else 'left','bolt_id':bolt_id,'nut_id':nut_id,
-        'designation':'M6x40 full-thread socket head cap screw','head_diameter':10,'head_height':6,
+        'designation':'M6x50 full-thread socket head cap screw','head_diameter':10,'head_height':6,
         'hex_key':5,'hex_socket_depth':3,'head_seat':head_seat,'nut_seat':nut_seat,
-        'clamped_stack':32,'locking_nut_height':5,'tip_protrusion':3,'thread_model':'simplified'})
+        'clamped_stack':42,'locking_nut_height':5,'tip_protrusion':3,'thread_model':'simplified'})
 
 # The pitch arm end plates are tapped directly; the existing rod-end shanks
 # screw into them. Only the two remaining receiver pivots need through bolts.
-pitch_bolt = cap_head.cut(socket).fuse(cylinder(3,20)).clean()
+pitch_bolt = cap_head.cut(socket).fuse(cylinder(3,30)).clean()
 for side, face, link in [(1,RIGHT_FACE,pitch_fit['link']),(-1,LEFT_FACE,left_pitch['link'])]:
     rotation = reverse if side == 1 else np.eye(3)
     upper = vec(link['upper'])
-    head_seat = (upper + vec([0,0,side*4.5])).tolist()
+    head_seat = (upper + vec([0,0,side*9.5])).tolist()
     nut_seat = [float(upper[0]),float(upper[1]),face-side*4]
     bolt_id = len(parts)
-    names[bolt_id] = f'receiver_pitch_{"right" if side == 1 else "left"}_M6x20_socket_cap_bolt'
+    names[bolt_id] = f'receiver_pitch_{"right" if side == 1 else "left"}_M6x30_socket_cap_bolt'
     parts.append(transform(pitch_bolt,rotation,vec(head_seat)))
     nut_id = len(parts)
     names[nut_id] = f'receiver_pitch_{"right" if side == 1 else "left"}_M6_locking_nut'
     parts.append(transform(nut,rotation,vec(nut_seat)))
     fasteners.append({'side':'right' if side == 1 else 'left','mount':'pitch',
         'bolt_id':bolt_id,'nut_id':nut_id,'connected_parts':[38,link['upper_ball'],link['upper_eye']],
-        'designation':'M6x20 socket head cap screw','head_diameter':10,'head_height':6,
+        'designation':'M6x30 socket head cap screw','head_diameter':10,'head_height':6,
         'hex_key':5,'hex_socket_depth':3,'head_seat':head_seat,'nut_seat':nut_seat,
-        'clamped_stack':13,'locking_nut_height':5,'tip_protrusion':2,'thread_model':'simplified'})
+        'clamped_stack':23,'locking_nut_height':5,'tip_protrusion':2,'thread_model':'simplified'})
+
+# Additional external washers, appended to preserve existing motion IDs.
+washer_mounts = []
+for side, face in [(1,RIGHT_FACE),(-1,LEFT_FACE)]:
+    origin = vec([RECEIVER_X,RECEIVER_Y,face+side*33])
+    washer_mounts.append((side,origin,'main_outer'))
+for side, link in [(1,pitch_fit['link']),(-1,left_pitch['link'])]:
+    center = vec(link['upper'])
+    washer_mounts.extend([(side,center+vec([0,0,side*4.5]),'pitch_outer'),
+                          (-side,center-vec([0,0,side*4.5]),'pitch_inner')])
+for side,origin,label in washer_mounts:
+    names[len(parts)] = f'receiver_{label}_{len(parts)}_steel_sleeve_M6'
+    parts.append(transform(washer,np.eye(3) if side == 1 else reverse,origin))
 
 print('Validate and export assembly', flush=True)
 inherited_invalid = [i for i, s in enumerate(solids) if not s.isValid()]
@@ -232,6 +246,9 @@ for link in links:
     interface_pairs.extend((link['upper_ball'], j) for j in [38,*nut_ids])
     interface_pairs.append((link['lower_eye'],link['crank']))
 overlaps = []
+# Every added washer is also checked against the fixed clamp stack at home.
+for a in range(72,78):
+    interface_pairs.extend((a,b) for b in [38,18,19,23,24,28,29,33,34,50,51,60,61,54,55,56,57,*range(64,a)] if a != b)
 for a,b in interface_pairs:
     volume = abs(parts[a].intersect(parts[b]).Volume())
     if volume > 1e-3:
@@ -246,7 +263,9 @@ for i, part in enumerate(parts):
     assembly.add(part, name=names[i], color=color)
 assembly.export(str(TARGET), exportType='STEP')
 cq.exporters.export(shaft, str(OUT / 'shaft_D10_L210_M6_depth12.stp'), exportType='STEP')
-cq.exporters.export(eye, str(OUT / 'POS6_M6x1_housing.stp'), exportType='STEP')
+cq.exporters.export(washer, str(OUT/'steel_sleeve_6x8x5.step'))
+cq.exporters.export(spacer, str(OUT/'steel_sleeve_6x8x10.step'))
+cq.exporters.export(eye, str(OUT / 'SA6TK_M6x1_housing.stp'), exportType='STEP')
 
 manifest = {
     'source': SOURCE.name, 'source_sha256': hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
@@ -254,14 +273,14 @@ manifest = {
     'shaft': {'diameter':10, 'length':210, 'thread':'M6x1 RH', 'thread_depth':12, 'pilot_depth':14,
               'thread_representation':'simplified cylindrical envelope, no helical teeth',
               'modeled_hole_diameter':6.05, 'nominal_tap_drill_diameter':5},
-    'bearing': {'model':'POS6 dimensional reference', 'bore':6, 'head_diameter':18,
+    'bearing': {'model':'SA6T/K JLCFA supplier STEP', 'bore':6, 'head_diameter':20,
                 'ball_diameter':12.7, 'ball_width':9, 'housing_width':6.75,
-                'center_to_tip':36, 'male_thread_length':22, 'engagement':12, 'exposed_thread':10},
-    'nuts': {'model':'DIN934 M6', 'height':5, 'across_flats':10, 'spacer_quantity':4,'locking_quantity':4,'quantity':8},
+                'center_to_tip':36, 'male_thread_length':21, 'engagement':12, 'exposed_thread':9},
+    'nuts': {'model':'DIN934 M6', 'height':5, 'across_flats':10, 'spacer_quantity':0,'locking_quantity':4,'quantity':4},
     'pitch_arm_connection':'Rod-end male shanks screw directly into tapped arm end plates; no additional bolts or nuts; threads simplified',
     'receiver_fasteners':fasteners,
-    'stack':'receiver -> 5 mm nut -> 9 mm bearing -> 5 mm nut -> 9 mm bearing',
-    'receiver_ball_spacing':14, 'eye_to_eye':LINK_LENGTH,
+    'stack':'receiver -> 5 mm steel sleeve -> 9 mm ball -> 10 mm steel sleeve -> 9 mm ball -> 5 mm steel sleeve',
+    'receiver_ball_spacing':19, 'steel_sleeves':{'bore':6,'outer_diameter':8,'height':5,'single_quantity':8,'double_height':10,'double_quantity':2,'status':'nominal stock sleeve geometry; joint interference begins near 19 degrees; verify supplier bore tolerance'}, 'eye_to_eye':LINK_LENGTH,
     'inherited_invalid_source_solids': inherited_invalid,
     'links':sorted([*report_links,pitch_fit['link'],left_pitch['link']],key=lambda l:l['motor']),
     'part_names':names, 'replacements':replacements,

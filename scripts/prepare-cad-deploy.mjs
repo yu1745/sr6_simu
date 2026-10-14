@@ -2,6 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 const directory = new URL('../dist/client/', import.meta.url);
 const index = new URL('sr6-cad.json',directory);
 const data = JSON.parse(await readFile(index,'utf8'));
+const masses=JSON.parse(await readFile(new URL('sr6-mass-properties.json',directory),'utf8'));
+if(masses.version!==1||masses.sha256!==data.sha256)throw Error('CAD mass properties are stale; run pnpm cad:mass');
 if (!data.partFiles) {
   const limit = 10 * 1024 * 1024;
   const chunks = []; let chunk = [], size = 2;

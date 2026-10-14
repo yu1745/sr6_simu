@@ -42,7 +42,7 @@ for (const key of ['x','y','z','roll','pitch','twist']) {
     }
     // Fixed base and six motor bodies stay still.
     for (const id of [1,2,4,6,8,10,12]) assert.deepEqual(meshes.get(id).matrix.elements,new T.Matrix4().elements);
-    for (const id of [64,65,66,67]) assert.deepEqual(meshes.get(id).matrix.elements,meshes.get(38).matrix.elements);
+    for (const id of [54,55,56,57,64,65,66,67,68,69,70,71,72,73,74,75,76,77]) assert.deepEqual(meshes.get(id).matrix.elements,meshes.get(38).matrix.elements);
     count++;
   }
 }

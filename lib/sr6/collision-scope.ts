@@ -7,7 +7,6 @@ export function collisionParts(data:CadData){
     2,3,4,5,6,7,8,9,10,11,12,13, // motor bodies and caps
     20,25,30,35, // four guide shafts
     39,40,41,42,43,44,45,46,47,48, // receiver accessories; keep body 38
-    54,55,56,57,64,65,66,67,68,69,70,71, // receiver fasteners/spacers
   ]);
   for(const link of CAD_LINKS){
     excluded.add(link.crank);

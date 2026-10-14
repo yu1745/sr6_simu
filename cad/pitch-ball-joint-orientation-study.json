@@ -1,0 +1,27 @@
+{
+  "scope": "Fixed joint centers and existing rigid-body motion. Orient flange freely in receiver frame; full 220 mm virtual stick; roll/pitch grid [-25,25] at 2.5 deg; unreachable samples excluded, not certified workspace.",
+  "reachable_samples": 243,
+  "unreachable_samples": 198,
+  "joints": [
+    {
+      "motor": 3,
+      "optimal_axis_in_receiver_STEP": [
+        0.5844960682422313,
+        -0.7829582907407979,
+        0.21293346653277573
+      ],
+      "sample_cone_half_angle_deg": 53.24601240954466,
+      "pairwise_lower_bound_deg": 53.24601240954558
+    },
+    {
+      "motor": 4,
+      "optimal_axis_in_receiver_STEP": [
+        0.6541439275604781,
+        -0.7472613533244479,
+        -0.11703073042355464
+      ],
+      "sample_cone_half_angle_deg": 51.7043628160583,
+      "pairwise_lower_bound_deg": 51.704362816058364
+    }
+  ]
+}
