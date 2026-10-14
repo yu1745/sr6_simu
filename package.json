@@ -8,6 +8,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test:kinematics": "node scripts/test-kinematics.mjs",
+    "test:cad-branches": "node scripts/test-cad-branches.mjs",
     "test:statics": "node scripts/test-statics.mjs",
     "test:dynamics": "node scripts/test-rigid-dynamics.mjs",
     "cad:mass": "py scripts/cad-mass-properties.py",

@@ -22,22 +22,42 @@ export function createCadKinematics(data: CadData) {
   const links = [...data.spec.links].sort((a,b)=>a.motor-b.motor).map(l=>{
     const pivot = new T.Vector3(...l.pivot), lower = new T.Vector3(...l.lower);
     const upper = new T.Vector3(...l.upper), arm = lower.clone().sub(pivot);
+    const target = upper.clone().sub(pivot);
+    // The signed side of the pivot-to-upper line identifies the assembly
+    // branch. Calibrate it at home; a previous angle must never select its mirror.
+    const branch = Math.sign(target.x*arm.y-target.y*arm.x);
+    if (!branch) throw new Error(`CAD M${l.motor+1} 零位处于奇异位形，无法标定装配分支`);
     return {pivot, lower, upper, radius:Math.hypot(arm.x,arm.y),
-      initial:Math.atan2(arm.y,arm.x), length:lower.distanceTo(upper)};
+      initial:Math.atan2(arm.y,arm.x), length:lower.distanceTo(upper), branch};
   });
-  function inverse(p: Pose, seed = Array(6).fill(0) as number[]) {
+  // Keep the optional seed argument for existing callers. It cannot override
+  // the calibrated branch; each branch has only one solution modulo 2π.
+  function inverse(p: Pose, _seed?: number[]) {
+    void _seed;
     if (!Object.values(p).every(Number.isFinite)) return {q:[],valid:false,reason:'输入包含非有限数值'};
     const matrix = cadPlatform(p), q: number[] = [];
     for (const [i,l] of links.entries()) {
       const d = l.upper.clone().applyMatrix4(matrix).sub(l.pivot);
-      const c = (d.lengthSq()+l.radius**2-l.length**2)/(2*l.radius*Math.hypot(d.x,d.y));
+      const dz = d.z-(l.lower.z-l.pivot.z);
+      const c = (d.x**2+d.y**2+dz**2+l.radius**2-l.length**2)/(2*l.radius*Math.hypot(d.x,d.y));
       if (!Number.isFinite(c) || Math.abs(c)>1+1e-9)
         return {q:[],valid:false,reason:`CAD M${i+1} 超出实测连杆可达范围`};
       const heading = Math.atan2(d.y,d.x), offset = Math.acos(T.MathUtils.clamp(c,-1,1));
-      const candidates = [wrap(heading+offset-l.initial),wrap(heading-offset-l.initial)];
-      q.push(candidates.reduce((a,b)=>Math.abs(wrap(a-seed[i]))<Math.abs(wrap(b-seed[i]))?a:b));
+      q.push(wrap(heading+l.branch*offset-l.initial));
     }
     return {q,valid:true,reason:''};
+  }
+  function isAssemblyBranch(p: Pose, q: number[]) {
+    if (q.length!==6 || !q.every(Number.isFinite) || !Object.values(p).every(Number.isFinite)) return false;
+    const matrix = cadPlatform(p);
+    return links.every((l,i)=>{
+      const d = l.upper.clone().applyMatrix4(matrix).sub(l.pivot);
+      const a = l.initial+q[i];
+      const side = d.x*Math.sin(a)-d.y*Math.cos(a);
+      // Both roots coincide at a tangent; allow roundoff there without letting
+      // history change the branch when the linkage moves away from it.
+      return l.branch*side >= -1e-9*Math.max(1,Math.hypot(d.x,d.y));
+    });
   }
   function evaluate(p: Pose, q: number[]) {
     if (q.length!==6 || !q.every(Number.isFinite) || !Object.values(p).every(Number.isFinite))
@@ -99,8 +119,10 @@ export function createCadKinematics(data: CadData) {
       else {damping*=10;if(damping>1e6)break;}
     }
     const e = evaluate(pose,q);
-    return {pose,iterations,converged:e.valid&&e.max<=1e-3,max:e.max,rms:e.rms};
+    const branchValid = isAssemblyBranch(pose,q);
+    return {pose,iterations,converged:e.valid&&e.max<=1e-3&&branchValid,max:e.max,rms:e.rms,
+      reason:branchValid?'':'电机角度超出 CAD 标定装配分支'};
   }
-  return {inverse,forward,evaluate,inverseJacobian};
+  return {inverse,forward,evaluate,inverseJacobian,isAssemblyBranch};
 }
 export type CadKinematics = ReturnType<typeof createCadKinematics>;

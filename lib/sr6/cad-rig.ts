@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { ZERO, type Pose } from './kinematics.ts';
-import { cadPlatform } from './cad-kinematics.ts';
+import { cadPlatform, createCadKinematics } from './cad-kinematics.ts';
 
 export type CadPart = { id: number; name: string; positions: number[]; indices: number[]; center: number[] };
 export type CadData = { source: string; sha256: string; parts: CadPart[]; partFiles?: string[]; spec: {
@@ -50,9 +50,18 @@ export function createCadRig(data: CadData, meshes: Map<number, T.Mesh>) {
       initialAngle: Math.atan2(arm.y, arm.x), length: direction.length(), direction: direction.normalize() };
   });
   for (const mesh of meshes.values()) mesh.matrixAutoUpdate = false;
-  let previous = links.map(l => l.initialAngle);
+  const solver = createCadKinematics(data);
 
   function update(pose: Pose, commandedAngles?: number[]): CadStatus {
+    const solution = solver.inverse(pose);
+    if (!solution.valid) return {valid:false,residual:Infinity,angles:[],reason:`${solution.reason}，保留上一 CAD 位姿`};
+    // FK commands must close on the same physical assembly as IK. Never draw
+    // a mirrored solution merely because it is closer to a supplied angle.
+    if (commandedAngles) {
+      const closure = solver.evaluate(pose,commandedAngles);
+      if (!closure.valid || closure.max>1e-3 || !solver.isAssemblyBranch(pose,commandedAngles))
+        return {valid:false,residual:closure.max,angles:[],reason:'电机角度不满足 CAD 闭环或标定装配分支，保留上一 CAD 位姿'};
+    }
     const platform = cadPlatform(pose);
     const matrices = new Map<number, T.Matrix4>();
     PLATFORM.forEach(id => matrices.set(id, platform));
@@ -63,19 +72,7 @@ export function createCadRig(data: CadData, meshes: Map<number, T.Mesh>) {
     let residual = 0;
     for (const [i, link] of links.entries()) {
       const end = link.upper.clone().applyMatrix4(platform);
-      const delta = end.clone().sub(link.pivot);
-      const distance = Math.hypot(delta.x, delta.y);
-      const cosine = (delta.lengthSq() + link.radius ** 2 - link.length ** 2) / (2 * link.radius * distance);
-      if (!Number.isFinite(cosine) || Math.abs(cosine) > 1 + 1e-9) {
-        return { valid: false, residual: Infinity, angles: [],
-          reason: `CAD M${link.motor + 1} 超出实测连杆可达范围，保留上一 CAD 位姿` };
-      }
-      const offset = Math.acos(T.MathUtils.clamp(cosine, -1, 1));
-      const heading = Math.atan2(delta.y, delta.x);
-      const candidates = [heading + offset, heading - offset];
-      const branchSeed = commandedAngles ? link.initialAngle + commandedAngles[i] : previous[i];
-      const angle = candidates.reduce((best, a) =>
-        Math.abs(wrap(a - branchSeed)) < Math.abs(wrap(best - branchSeed)) ? a : best);
+      const angle = link.initialAngle + (commandedAngles ?? solution.q)[i];
       angles.push(angle);
       const crankRotation = new T.Quaternion().setFromAxisAngle(Z, wrap(angle - link.initialAngle));
       const crank = rigid(crankRotation, link.pivot, link.pivot);
@@ -95,8 +92,7 @@ export function createCadRig(data: CadData, meshes: Map<number, T.Mesh>) {
       mesh.matrix.copy(matrix);
       mesh.matrixWorldNeedsUpdate = true;
     }
-    previous = angles;
     return { valid: true, residual, angles: angles.map((a, i) => wrap(a - links[i].initialAngle)), reason: '' };
   }
-  return { update, reset: () => { previous = links.map(l => l.initialAngle); return update(ZERO); } };
+  return { update, reset: () => update(ZERO) };
 }

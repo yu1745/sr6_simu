@@ -135,7 +135,8 @@ export function Sr6Simulator(){
     setQ(next);const start=performance.now();const result=view==='cad'?cadSolver.current!.forward(next,twist,lastGood.current.pose):forward(next,twist,lastGood.current.pose);
     setMs(performance.now()-start);setIterations(result.iterations);const target=tipFromReceiver(result.pose,stick.enabled?stick.length:0);setPose(target);
     const inLimits=definitions.every(d=>Math.abs(result.pose[d.key]/d.factor)<=d.limit+1e-9);
-    const message=!result.converged?'电机角度不满足闭环，正解未收敛':!inLimits?'正解超出当前输入范围':'';
+    const reason='reason' in result && typeof result.reason==='string'?result.reason:'';
+    const message=!result.converged?(reason||'电机角度不满足闭环，正解未收敛'):!inLimits?'正解超出当前输入范围':'';
     setError(message);
     if(!message){setStickScale(1);lastTarget.current=target;lastGood.current={pose:result.pose,q:next,cad:view==='cad'};}
   }
