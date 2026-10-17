@@ -1,7 +1,7 @@
 "use client";
 import type { MassProperties } from '@/lib/sr6/mass-properties';
 
-export function MaterialInspector({data,selected,onSelect,compact=false}:{data:MassProperties;selected:number|null;onSelect:(id:number)=>void;compact?:boolean}){
+export function MaterialInspector({data,selected,onSelect,compact=false,downloadUrl='/sr6-mass-properties.json'}:{data:MassProperties;selected:number|null;onSelect:(id:number)=>void;compact?:boolean;downloadUrl?:string}){
   const part=data.parts.find(p=>p.id===selected);
   return <section className={compact?'material-selection':'material-inspector'} aria-label={compact?'选中零件材质':'材质与惯量'}>
     {!compact&&<>
@@ -27,7 +27,7 @@ export function MaterialInspector({data,selected,onSelect,compact=false}:{data:M
     {!compact&&<>
       <details className="material-parts"><summary>全部 {data.parts.length} 个零件</summary>{data.parts.map(p=><button key={p.id} aria-pressed={p.id===selected} onClick={()=>onSelect(p.id)}><i style={{background:data.materials[p.material].color}}/><span>#{p.id} {p.label}</span><small>{p.included?`${(p.massKg!*1000).toFixed(1)} g`:p.motion==='fixed'?'固定':'总成内'}</small></button>)}</details>
       <p>惯量取 STEP 实体体积积分；R0 电机采用 388 g 实测质量和圆柱外形近似。虚拟杆无质量，负载视为杆尖集中质量。未计电机内部转子相对壳体的自转。</p>
-      <a href="/sr6-mass-properties.json" download>下载完整质量与惯量数据</a>
+      <a href={downloadUrl} download>下载完整质量与惯量数据</a>
     </>}
   </section>;
 }

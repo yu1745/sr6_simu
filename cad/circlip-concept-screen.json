@@ -1,0 +1,47 @@
+{
+  "source": "https://www.beneri.com/en/prodotto/din-471",
+  "nominalDIN471size6": {
+    "shaftDiameterMm": 6,
+    "thicknessMm": 0.7,
+    "freeInnerDiameterMm": 5.6,
+    "grooveDiameterMm": 5.7,
+    "grooveWidthMm": 0.8,
+    "bApproxMm": 1.3
+  },
+  "model": "Full annular surrogate, no opening or ears. Radius 4.15 = groove radius 2.85 + approximate band width 1.3. Not manufacturer CAD; not an exact circlip tilt limit.",
+  "scope": "Single housing versus one ring, ideal clearance from support. No strength, axial play or full assembly validation.",
+  "results": [
+    {
+      "outerRadiusMm": 4.0,
+      "firstOverlapAngleDeg": [
+        18.859710693359375,
+        18.86077880859375
+      ],
+      "overlapAt28_7725DegMm3": 0.33848519579087855
+    },
+    {
+      "outerRadiusMm": 4.15,
+      "firstOverlapAngleDeg": [
+        17.095184326171875,
+        17.09625244140625
+      ],
+      "overlapAt28_7725DegMm3": 0.7484032117274805
+    },
+    {
+      "outerRadiusMm": 4.2,
+      "firstOverlapAngleDeg": [
+        16.4959716796875,
+        16.497039794921875
+      ],
+      "overlapAt28_7725DegMm3": 0.9303101613381956
+    },
+    {
+      "outerRadiusMm": 5.55,
+      "firstOverlapAngleDeg": [
+        10.85205078125,
+        10.853118896484375
+      ],
+      "overlapAt28_7725DegMm3": 11.458694476142913
+    }
+  ]
+}

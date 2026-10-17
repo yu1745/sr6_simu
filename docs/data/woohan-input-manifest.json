@@ -1,0 +1,285 @@
+{
+  "settings": {
+    "model": "6010",
+    "l0SpanMm": 40,
+    "rollSpanDeg": 20,
+    "pitchSpanDeg": 20,
+    "rate": 1,
+    "payloadKg": 0,
+    "stickCompensation": false,
+    "filter": false,
+    "tickMs": 1,
+    "sendIntervalMs": 10,
+    "interpolation": "pchip"
+  },
+  "groups": [
+    {
+      "id": "group1",
+      "stem": "KBJ WooHanKyung Booty Bounce song and dance ver2",
+      "duration": 212322,
+      "samples": 212323,
+      "limits": [
+        [
+          12.655753205128205,
+          371.51671103182775,
+          22188.478115499805
+        ],
+        [
+          7.577525000000001,
+          148.71868855914,
+          5938.305306122451
+        ]
+      ],
+      "tracks": [
+        {
+          "axis": "L0",
+          "index": 0,
+          "filename": "KBJ WooHanKyung Booty Bounce song and dance ver2.funscript",
+          "sha256": "9231786d8e5816002c2affdb06e5458053569cc460c2151b345ce29d73a10872",
+          "peaks": [
+            12.524839743589743,
+            367.67367317606005,
+            21958.95637710233
+          ],
+          "safe": [
+            12.655753205128205,
+            371.51671103182775,
+            22188.478115499805
+          ],
+          "witnesses": [
+            {
+              "fromMs": 135964,
+              "toMs": 136081,
+              "delta": 0.6699,
+              "durationSeconds": 0.117
+            },
+            {
+              "fromMs": 60729,
+              "toMs": 60846,
+              "delta": 0.6698999999999999,
+              "durationSeconds": 0.117
+            },
+            {
+              "fromMs": 135964,
+              "toMs": 136081,
+              "delta": 0.6699,
+              "durationSeconds": 0.117
+            }
+          ],
+          "rawNodes": 802,
+          "v4Nodes": 800
+        },
+        {
+          "axis": "R1",
+          "index": 4,
+          "filename": "KBJ WooHanKyung Booty Bounce song and dance ver2.roll.funscript",
+          "sha256": "e0ab1bab73df05bc1229e5627072cfe94e559ab487994bc2422db77d92f81fd6",
+          "peaks": [
+            7.498750000000002,
+            147.1726277158902,
+            5876.571428571431
+          ],
+          "safe": [
+            7.577525000000001,
+            148.71868855914,
+            5938.305306122451
+          ],
+          "witnesses": [
+            {
+              "fromMs": 62208,
+              "toMs": 62383,
+              "delta": 0.5999000000000001,
+              "durationSeconds": 0.175
+            },
+            {
+              "fromMs": 62208,
+              "toMs": 62383,
+              "delta": 0.5999000000000001,
+              "durationSeconds": 0.175
+            },
+            {
+              "fromMs": 62208,
+              "toMs": 62383,
+              "delta": 0.5999000000000001,
+              "durationSeconds": 0.175
+            }
+          ],
+          "rawNodes": 603,
+          "v4Nodes": 600
+        },
+        {
+          "axis": "R2",
+          "index": 5,
+          "filename": "KBJ WooHanKyung Booty Bounce song and dance ver2.pitch.funscript",
+          "sha256": "7b2c7a6d8a29c80ec8a9760f2ae0e02cd397660daf017d50601437030af582f7",
+          "peaks": [
+            7.166843220338983,
+            139.06916772674361,
+            5490.256225482321
+          ],
+          "safe": [
+            7.242256355932203,
+            140.53252358373376,
+            5548.027467917038
+          ],
+          "witnesses": [
+            {
+              "fromMs": 23359,
+              "toMs": 23536,
+              "delta": 0.5799,
+              "durationSeconds": 0.177
+            },
+            {
+              "fromMs": 23359,
+              "toMs": 23536,
+              "delta": 0.5799,
+              "durationSeconds": 0.177
+            },
+            {
+              "fromMs": 23359,
+              "toMs": 23536,
+              "delta": 0.5799,
+              "durationSeconds": 0.177
+            }
+          ],
+          "rawNodes": 884,
+          "v4Nodes": 882
+        }
+      ]
+    },
+    {
+      "id": "group2",
+      "stem": "KBJ WooHanKyung Booty Bounce song and dance",
+      "duration": 211755,
+      "samples": 211756,
+      "limits": [
+        [
+          12.655753205128205,
+          371.51671103182775,
+          22188.478115499805
+        ],
+        [
+          7.577525000000001,
+          148.71868855914,
+          5938.305306122451
+        ]
+      ],
+      "tracks": [
+        {
+          "axis": "L0",
+          "index": 0,
+          "filename": "KBJ WooHanKyung Booty Bounce song and dance.funscript",
+          "sha256": "702e85d6ca72f623150c107506e3152e53e351650a4b48d510404f8e0e33d1bc",
+          "peaks": [
+            12.524839743589743,
+            367.67367317606005,
+            21958.95637710233
+          ],
+          "safe": [
+            12.655753205128205,
+            371.51671103182775,
+            22188.478115499805
+          ],
+          "witnesses": [
+            {
+              "fromMs": 135397,
+              "toMs": 135514,
+              "delta": 0.6699,
+              "durationSeconds": 0.117
+            },
+            {
+              "fromMs": 60162,
+              "toMs": 60279,
+              "delta": 0.6698999999999999,
+              "durationSeconds": 0.117
+            },
+            {
+              "fromMs": 135397,
+              "toMs": 135514,
+              "delta": 0.6699,
+              "durationSeconds": 0.117
+            }
+          ],
+          "rawNodes": 815,
+          "v4Nodes": 814
+        },
+        {
+          "axis": "R1",
+          "index": 4,
+          "filename": "KBJ WooHanKyung Booty Bounce song and dance.roll.funscript",
+          "sha256": "f72af601a4e5c153224d36efc76e5deb0df4e04528ef9fc2d10eabc866fa81e0",
+          "peaks": [
+            7.498750000000002,
+            147.1726277158902,
+            5876.571428571431
+          ],
+          "safe": [
+            7.577525000000001,
+            148.71868855914,
+            5938.305306122451
+          ],
+          "witnesses": [
+            {
+              "fromMs": 61686,
+              "toMs": 61861,
+              "delta": 0.5999000000000001,
+              "durationSeconds": 0.175
+            },
+            {
+              "fromMs": 61686,
+              "toMs": 61861,
+              "delta": 0.5999000000000001,
+              "durationSeconds": 0.175
+            },
+            {
+              "fromMs": 61686,
+              "toMs": 61861,
+              "delta": 0.5999000000000001,
+              "durationSeconds": 0.175
+            }
+          ],
+          "rawNodes": 613,
+          "v4Nodes": 610
+        },
+        {
+          "axis": "R2",
+          "index": 5,
+          "filename": "KBJ WooHanKyung Booty Bounce song and dance.pitch.funscript",
+          "sha256": "46f802de0947542d6c529834a9233145361c847e9306d9ca0b0a3e5714065d34",
+          "peaks": [
+            7.166843220338983,
+            139.06916772674361,
+            5490.256225482321
+          ],
+          "safe": [
+            7.242256355932203,
+            140.53252358373376,
+            5548.027467917038
+          ],
+          "witnesses": [
+            {
+              "fromMs": 22837,
+              "toMs": 23014,
+              "delta": 0.5799,
+              "durationSeconds": 0.177
+            },
+            {
+              "fromMs": 22837,
+              "toMs": 23014,
+              "delta": 0.5799,
+              "durationSeconds": 0.177
+            },
+            {
+              "fromMs": 22837,
+              "toMs": 23014,
+              "delta": 0.5799,
+              "durationSeconds": 0.177
+            }
+          ],
+          "rawNodes": 899,
+          "v4Nodes": 898
+        }
+      ]
+    }
+  ]
+}

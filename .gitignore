@@ -50,3 +50,6 @@ next-env.d.ts
 # Python CAD build cache
 __pycache__/
 *.py[cod]
+
+# Local browser automation artifacts
+/.playwright-cli/

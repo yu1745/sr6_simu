@@ -4,7 +4,7 @@ import * as T from 'three';
 import { createCadRig, CAD_LINKS } from '../lib/sr6/cad-rig.ts';
 import { ZERO } from '../lib/sr6/kinematics.ts';
 
-const data = JSON.parse(fs.readFileSync(new URL('../public/sr6-cad.json', import.meta.url), 'utf8'));
+const data = JSON.parse(fs.readFileSync(new URL(process.argv.includes('--6010')?'../public/sr6-6010-cad.json':'../public/sr6-cad.json', import.meta.url), 'utf8'));
 const meshes = new Map(data.parts.map(p => [p.id, new T.Mesh()]));
 const rig = createCadRig(data, meshes);
 assert.equal(CAD_LINKS.length, 6);

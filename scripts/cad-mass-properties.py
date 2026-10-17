@@ -5,6 +5,7 @@ multiply by rho*1e-9 / rho*1e-15 for kg / kg m^2, respectively.
 The tensor is about each part's centroid, expressed in source STEP XYZ axes.
 """
 import hashlib
+import argparse
 import json
 from pathlib import Path
 
@@ -84,8 +85,15 @@ def validate_units():
 
 
 def main():
+    global SOURCE
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--variant', choices=['8108', '6010'], default='8108')
+    args = parser.parse_args()
+    prefix = 'sr6-6010' if args.variant == '6010' else 'sr6'
+    if args.variant == '6010':
+        SOURCE = ROOT/'cad/sr6_6010_complete.stp'
     validate_units()
-    data = json.loads((ROOT/'public/sr6-cad.json').read_text(encoding='utf-8'))
+    data = json.loads((ROOT/f'public/{prefix}-cad.json').read_text(encoding='utf-8'))
     digest = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
     assert digest == data['sha256'], 'Mass data must use the displayed STEP revision'
     solids = cq.importers.importStep(str(SOURCE)).val().Solids()
@@ -138,7 +146,7 @@ def main():
         'includedCount': len(included), 'virtualStickMassKg': 0,
         'payloadIsAdditional': True,
     }
-    target = ROOT/'public/sr6-mass-properties.json'
+    target = ROOT/f'public/{prefix}-mass-properties.json'
     target.write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     report = [
         '# SR6 材质、质量与转动惯量', '',
@@ -177,7 +185,8 @@ def main():
         '暂停仅重置下一次采样历史，保留最后一帧的动力学结果；定位与手动输入清空加速度。', '',
         '重新生成：`pnpm cad:mass`。验证：`pnpm test:dynamics`。', '',
     ])
-    (ROOT/'docs/MASS-PROPERTIES.md').write_text('\n'.join(report), encoding='utf-8')
+    report_path = ROOT/('docs/MASS-PROPERTIES-6010.md' if args.variant == '6010' else 'docs/MASS-PROPERTIES.md')
+    report_path.write_text('\n'.join(report).replace('../public/sr6-mass-properties.json', f'../public/{prefix}-mass-properties.json'), encoding='utf-8')
     print(f'{len(catalog)} parts; {len(included)} included; {result["includedMassKg"]:.6f} kg', flush=True)
     for p in included:
         print(f'#{p["id"]:02d} {p["label"]}: {p["massKg"]*1000:.3f} g; I principal = {p["principalKgM2"]}', flush=True)

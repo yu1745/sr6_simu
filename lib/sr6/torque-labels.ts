@@ -30,7 +30,7 @@ export function createTorqueLabels(canvas:HTMLCanvasElement){
       if(!visible)return;
       const width=canvas.clientWidth,height=canvas.clientHeight;
       const labelWidth=Math.min(204,Math.max(125,width-20));
-      const labelHeight=45,gap=7,top=Math.min(122,height*.25),bottom=height-38;
+      const labelHeight=45,gap=7,top=width<520?180:Math.min(122,height*.25),bottom=height-38;
       const points=anchors.map((anchor,index)=>{
         projected.copy(anchor).project(camera);inCamera.copy(anchor).applyMatrix4(camera.matrixWorldInverse);
         const visible=inCamera.z<0&&Math.abs(projected.x)<1.15&&Math.abs(projected.y)<1.15&&Math.abs(projected.z)<=1;

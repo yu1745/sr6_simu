@@ -24,3 +24,27 @@
 .acceleration-values{display:block;font:11px/18px Consolas,monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
 .compensation-calibration .compensation-enabled{color:#80c6c9}.compensation-calibration .script-error{color:#f4ad67}
 .material-inspector{padding:18px 0;border-bottom:1px solid #23313d;font-size:11px}.material-inspector p{color:#91a6b5;line-height:1.6;margin:10px 0}.material-inspector a{color:#79d2de;text-decoration:underline}.material-legend{display:flex;flex-wrap:wrap;gap:7px 12px;color:#bdd0dc;font-size:11px}.material-legend span{display:flex;align-items:center;gap:5px}.material-inspector i,.material-selection i{display:inline-block;flex:0 0 9px;width:9px;height:9px;border-radius:2px;margin-right:5px}.material-part{display:flex;flex-direction:column;gap:6px;padding:10px;background:#101e27;border:1px solid #304754;border-radius:5px;margin-top:10px;min-width:0}.material-part>strong{font-size:12px;color:#e0edf4}.material-part>span{font-size:11px;color:#9db4c3;line-height:1.5}.material-part code,.material-part pre{font:10px/1.6 Consolas,monospace;white-space:pre;overflow-x:auto;color:#d0e7e8;max-width:100%}.material-part summary,.material-parts summary{cursor:pointer;color:#b2c8d5;margin:8px 0}.material-parts{margin-top:14px}.material-parts button{display:flex;align-items:center;gap:4px;width:100%;padding:7px 3px;border-bottom:1px solid #20323f;text-align:left;color:#b7cbd7;cursor:pointer}.material-parts button span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.material-parts button small{font:10px Consolas,monospace;white-space:nowrap}.material-parts button[aria-pressed=true]{background:#223b47;color:#fff}.material-selection{position:absolute;left:12px;bottom:40px;width:min(310px,calc(100% - 24px));z-index:4;pointer-events:none}.material-selection .material-part{background:#0b1723ef;box-shadow:0 4px 18px #0008}.material-selection code{font-size:11px}
+/* Six synchronized bottom plots; no animation advances their time axis. */
+.base-reaction-overlay{position:absolute;left:12px;right:12px;bottom:12px;pointer-events:none;z-index:3;padding:10px 12px;background:#101a22f5;border:1px solid #38505d;border-radius:7px;contain:layout style paint}
+.base-reaction-overlay[hidden]{display:none}
+.base-reaction-heading{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:8px}
+.base-reaction-heading strong{font-size:12px;color:#d5e8ee}
+.base-reaction-heading small{font-size:10px;color:#98aeb9}
+.base-reaction-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.base-reaction-chart{min-width:0;border-left:1px solid #2c3c48;padding-left:7px}
+.base-reaction-chart:first-child{border-left:0;padding-left:0}
+.base-reaction-chart-label{display:flex;align-items:baseline;gap:4px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.base-reaction-chart-label strong{font-size:12px;color:#79d2de}
+.base-reaction-chart-label span{flex:1;text-align:right;font:11px Consolas,monospace;color:#e3edf2}
+.base-reaction-chart-label small{font-size:9px;color:#92a6b3}
+.base-reaction-chart svg{display:block;width:100%;height:90px;overflow:hidden}
+.base-reaction-chart text{fill:#9bb0bd;font:9px Consolas,monospace}
+.reaction-zero{stroke:#4a6171;stroke-width:.7;stroke-dasharray:3 3}
+.reaction-trace{stroke:#79d2de;stroke-width:1.6;fill:none;vector-effect:non-scaling-stroke}
+.base-reaction-overlay.invalid{border-color:#ae7951}
+.viewport .frame-rate{bottom:160px}
+.viewport .axis-legend{bottom:154px}
+.viewport .material-selection{bottom:180px}
+@media(max-width:1400px){.base-reaction-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.base-reaction-chart svg{height:66px}.viewport .frame-rate{bottom:225px}.viewport .axis-legend{bottom:218px}.viewport .material-selection{bottom:245px}}
+@media(max-width:700px){.base-reaction-overlay{left:6px;right:6px;bottom:6px;padding:7px}.base-reaction-heading{flex-wrap:wrap;gap:3px}.base-reaction-chart svg{height:60px}.base-reaction-grid{gap:5px}.viewport .frame-rate{bottom:230px}.viewport .axis-legend{display:none}}
+@media(max-width:520px){.workspace{grid-template-rows:600px auto auto}}

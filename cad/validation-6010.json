@@ -1,0 +1,51 @@
+{
+  "source_sha256": "0b0a03361ce7103e976d0441e9780fa6f5c910a5bc8773bc4b769694d9c564c2",
+  "baseline_sha256": "e15e328f624c0c1bccbd2751bb7fc3017519342d71a9068e6a5bd066072eca2f",
+  "output_sha256": "c84b8c63df4cedaad342a7cf8bbdeb0a013b5731bb35d691cf3a643815ff7b4d",
+  "replaced_count": 13,
+  "preserved_count": 65,
+  "mount_center_max_error_mm": 4.0196360384375716e-05,
+  "motor_seats": [
+    {
+      "motor_part": 2,
+      "crank_part": 0,
+      "seat_error_mm": 1.0002307249123987e-07
+    },
+    {
+      "motor_part": 4,
+      "crank_part": 14,
+      "seat_error_mm": 1.0002304406953044e-07
+    },
+    {
+      "motor_part": 8,
+      "crank_part": 15,
+      "seat_error_mm": 1.0010262485593557e-07
+    },
+    {
+      "motor_part": 10,
+      "crank_part": 16,
+      "seat_error_mm": 1.0010219853029412e-07
+    },
+    {
+      "motor_part": 6,
+      "crank_part": 17,
+      "seat_error_mm": 1.0008417206108788e-07
+    },
+    {
+      "motor_part": 12,
+      "crank_part": 58,
+      "seat_error_mm": 1.0008197648403439e-07
+    }
+  ],
+  "links_unchanged": true,
+  "preserved_breps_and_meshes_identical": true,
+  "invalid_source_solids": [
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    39
+  ]
+}

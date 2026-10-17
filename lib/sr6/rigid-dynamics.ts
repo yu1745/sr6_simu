@@ -2,7 +2,7 @@ import * as T from 'three';
 import { CAD_LINKS, type CadData } from './cad-rig.ts';
 import { CAD_PLATFORM_PIVOT, cadPlatform, type CadKinematics } from './cad-kinematics.ts';
 import { aggregateRigidBodies, validateMassProperties, type MassProperties } from './mass-properties.ts';
-import { GRAVITY_MPS2, NO_ACCELERATION, staticForceAnalysis, type TorqueAnalysis } from './statics.ts';
+import { GRAVITY_MPS2, NO_ACCELERATION, staticForceAnalysis, type BaseReaction, type TorqueAnalysis } from './statics.ts';
 import { MAX_LINEAR_ACCELERATION, MAX_SAMPLE_GAP_MS, MOTION_FILTER_HZ } from './payload-motion.ts';
 import type { Pose } from './kinematics.ts';
 
@@ -40,9 +40,32 @@ export function bodyWrench(massKg:number,inertiaWorld:T.Matrix3,rates:BodyRates,
   };
 }
 
+/** Wrench exerted by one moving body on the fixed base. STEP +X is upward.
+ * Gravity and inertia are kept separate so a static load remains visible.
+ */
+export function bodyBaseReaction(massKg:number,inertiaWorld:T.Matrix3,rates:BodyRates,
+                                 centerM:T.Vector3,originM:T.Vector3){
+  const arm=centerM.clone().sub(originM);
+  const gravityForce=new T.Vector3(massKg*GRAVITY_MPS2,0,0);
+  const inertiaForce=vector(rates.acceleration).multiplyScalar(massKg);
+  const omega=vector(rates.omega);
+  const spinMoment=vector(rates.alpha).applyMatrix3(inertiaWorld)
+    .add(omega.clone().cross(omega.clone().applyMatrix3(inertiaWorld)));
+  const onBase=(force:T.Vector3,moment:T.Vector3)=>{
+    const torque=arm.clone().cross(force).add(moment);
+    return [-force.x,-force.y,-force.z,-torque.x,-torque.y,-torque.z];
+  };
+  return {gravity:onBase(gravityForce,new T.Vector3()),inertia:onBase(inertiaForce,spinMoment)};
+}
+
 export function createRobotDynamics(data:CadData,masses:MassProperties,solver:CadKinematics){
   validateMassProperties(masses,data.sha256);
   const bodies=aggregateRigidBodies(masses);
+  const baseSheet=masses.parts.find(part=>part.id===1&&part.motion==='fixed');
+  if(!baseSheet||baseSheet.centerMm.length!==3||!baseSheet.centerMm.every(Number.isFinite))
+    throw Error('固定底座参考点缺失');
+  const baseOriginMm=baseSheet.centerMm as Vec3;
+  const baseOriginM=vector(baseOriginMm).multiplyScalar(.001);
   const links=CAD_LINKS.map(link=>{
     const measured=data.spec.links.find(l=>l.motor===link.motor)!;
     const lower=vector(measured.lower),upper=vector(measured.upper);
@@ -73,6 +96,25 @@ export function createRobotDynamics(data:CadData,masses:MassProperties,solver:Ca
     return result;
   }
   let previous:Map<string,BodyPose>|null=null,previousTime=0;
+  /** Ideal script dynamics from the planned curve, independent of render cadence.
+   * Five-point differentiation in real seconds includes playback speed and IK.
+   */
+  function referenceMotion(pose:Pose,q:readonly number[],stickLength:number,
+                           sample:(offsetSeconds:number)=>{pose:Pose;q:readonly number[]},h=.001):RobotMotion{
+    const center=bodyPoses(pose,q,stickLength);
+    const frames=[-2,-1,1,2].map(n=>{const p=sample(n*h);return bodyPoses(p.pose,p.q,stickLength);});
+    const result:RobotMotion={};
+    for(const [id,p] of center){
+      const points=frames.map(f=>f.get(id)!);
+      const acceleration=points[0].center.clone().negate().addScaledVector(points[1].center,16)
+        .addScaledVector(p.center,-30).addScaledVector(points[2].center,16).addScaledVector(points[3].center,-1).multiplyScalar(1/(12*h*h));
+      const rotations=points.map(v=>rotationVector(v.rotation.clone().multiply(p.rotation.clone().invert())));
+      const omega=rotations[0].clone().addScaledVector(rotations[1],-8).addScaledVector(rotations[2],8).addScaledVector(rotations[3],-1).multiplyScalar(1/(12*h));
+      const alpha=rotations[0].clone().negate().addScaledVector(rotations[1],16).addScaledVector(rotations[2],16).addScaledVector(rotations[3],-1).multiplyScalar(1/(12*h*h));
+      result[id]={acceleration:acceleration.toArray(),omega:omega.toArray(),alpha:alpha.toArray()};
+    }
+    return result;
+  }
   let velocities=new Map<string,{linear:T.Vector3;angular:T.Vector3}>();
   let rates:RobotMotion={};
   function reset(){previous=null;previousTime=0;velocities=new Map();rates={};}
@@ -118,6 +160,7 @@ export function createRobotDynamics(data:CadData,masses:MassProperties,solver:Ca
   function generalizedLoads(pose:Pose,q:readonly number[],stickLength:number,weightN:number,motion:RobotMotion|null){
     const positions=bodyPoses(pose,q,stickLength),jac=derivatives(pose,q,stickLength);
     const gravity=Array(5).fill(0) as number[],inertia=Array(5).fill(0) as number[];
+    const reactionGravity=Array(6).fill(0) as number[],reactionInertia=Array(6).fill(0) as number[];
     const payload={id:'payload',massKg:weightN/GRAVITY_MPS2,inertia:new T.Matrix3().set(0,0,0,0,0,0,0,0,0)};
     for(const body of [...bodies,payload]){
       const rotation=new T.Matrix3().setFromMatrix4(new T.Matrix4().makeRotationFromQuaternion(positions.get(body.id)!.rotation));
@@ -125,8 +168,12 @@ export function createRobotDynamics(data:CadData,masses:MassProperties,solver:Ca
       const state=motion?.[body.id]??{acceleration:[0,0,0],omega:[0,0,0],alpha:[0,0,0]};
       const load=bodyWrench(body.massKg,worldInertia,state,jac.get(body.id)!);
       for(let i=0;i<5;i++){gravity[i]+=load.gravity[i];inertia[i]+=load.inertia[i];}
+      const reaction=bodyBaseReaction(body.massKg,worldInertia,state,positions.get(body.id)!.center,baseOriginM);
+      for(let i=0;i<6;i++){reactionGravity[i]+=reaction.gravity[i];reactionInertia[i]+=reaction.inertia[i];}
     }
-    return {gravity,inertia};
+    const baseReaction:BaseReaction={originMm:baseOriginMm,gravity:reactionGravity,inertia:reactionInertia,
+      total:reactionGravity.map((value,i)=>value+reactionInertia[i])};
+    return {gravity,inertia,baseReaction};
   }
   function torques(pose:Pose,q:readonly number[],stickLength:number,weightN:number,motion:RobotMotion|null):TorqueAnalysis{
     const payload=motion?.payload?.acceleration??[0,0,0];
@@ -141,9 +188,9 @@ export function createRobotDynamics(data:CadData,masses:MassProperties,solver:Ca
       if(!gravity.valid||!inertia.valid)return invalid('机构动力学分配失败');
       return {valid:true,reason:'',gravity:gravity.torques,inertia:inertia.torques,
         total:gravity.torques.map((v,i)=>v+inertia.torques[i]),massKg:weightN/GRAVITY_MPS2,acceleration,
-        relativeResidual:Math.max(gravity.relativeResidual,inertia.relativeResidual)};
+        relativeResidual:Math.max(gravity.relativeResidual,inertia.relativeResidual),baseReaction:loads.baseReaction};
     }catch(error){return invalid(error instanceof Error?error.message:String(error));}
   }
-  return {bodies,bodyPoses,transforms,sample,reset,generalizedLoads,torques};
+  return {bodies,bodyPoses,transforms,sample,referenceMotion,reset,generalizedLoads,torques};
 }
 export type RobotDynamics=ReturnType<typeof createRobotDynamics>;

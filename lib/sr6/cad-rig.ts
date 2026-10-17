@@ -5,6 +5,7 @@ import { cadPlatform, createCadKinematics } from './cad-kinematics.ts';
 export type CadPart = { id: number; name: string; positions: number[]; indices: number[]; center: number[] };
 export type CadData = { source: string; sha256: string; parts: CadPart[]; partFiles?: string[]; spec: {
   source_sha256: string; sha256: string;
+  variant?: string;
   links: {motor: number; pivot: number[]; lower: number[]; upper: number[]}[];
 } };
 export type CadStatus = { valid: boolean; residual: number; angles: number[]; reason: string };
@@ -35,7 +36,9 @@ function rigid(rotation: T.Quaternion, sourceAnchor: T.Vector3, targetAnchor: T.
 }
 
 export function createCadRig(data: CadData, meshes: Map<number, T.Mesh>) {
-  if (data.source !== 'sr6_mini_complete.stp' || data.spec?.source_sha256 !== SOURCE_HASH
+  const knownAssembly=data.source==='sr6_mini_complete.stp'||
+    (data.source==='sr6_6010_complete.stp'&&data.spec?.variant==='6010');
+  if (!knownAssembly || data.spec?.source_sha256 !== SOURCE_HASH
     || data.sha256 !== data.spec.sha256 || data.parts.length !== 78 || data.spec.links.length !== 6)
     throw new Error('STEP 版本与关节标定不匹配，请重新标定');
   const centers = new Map(data.parts.map(p => [p.id, new T.Vector3(...p.center)]));

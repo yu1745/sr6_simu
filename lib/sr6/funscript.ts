@@ -1,4 +1,5 @@
 import { ZERO, type Pose } from './kinematics.ts';
+import { sampleBuffered } from './buffered-trajectory.ts';
 
 // Format and aliases follow xtp-web/src/funscript/funscript.ts.
 // Playback is local to the simulator and has no media or transport dependency.
@@ -113,13 +114,13 @@ export function sampleTrack(points:Action[],time:number):number{
   const a=points[lo],b=points[hi];
   return a.pos+(b.pos-a.pos)*(time-a.at)/(b.at-a.at);
 }
-export function scriptPose(bundle:ScriptBundle,time:number,settings:AxisSetting[]):Pose{
+export function scriptPose(bundle:ScriptBundle,time:number,settings:AxisSetting[],rate=1):Pose{
   const pose={...ZERO};
   SCRIPT_AXES.forEach((axis,i)=>{
     const track=bundle.tracks[i];
     if(!track)return;
     const unit=axis.unit==='°'?Math.PI/180:1;
-    pose[axis.key]=(sampleTrack(track.actions,time)/100-.5)*settings[i].range*unit*(settings[i].reverse?-1:1);
+    pose[axis.key]=(sampleBuffered(track.actions,time,rate).position/100-.5)*settings[i].range*unit*(settings[i].reverse?-1:1);
   });
   return pose;
 }

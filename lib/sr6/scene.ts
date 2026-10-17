@@ -7,13 +7,16 @@ import { createCadKinematics, type CadKinematics } from './cad-kinematics.ts';
 import { createCollisionDisplay, type CollisionStatus } from './collision.ts';
 import { createStickVisual } from './stick-visual.ts';
 import { createTorqueLabels } from './torque-labels.ts';
+import { createBaseReactionLabel } from './base-reaction-label.ts';
 import { NO_ACCELERATION, numericalInverseJacobian, receiverTorques, type Acceleration, type TorqueAnalysis } from './statics.ts';
 import { createRobotDynamics, type RobotDynamics, type RobotMotion } from './rigid-dynamics.ts';
 import { type MassProperties } from './mass-properties.ts';
 import { createRenderBudget } from './render-budget.ts';
+import { CAD_VARIANTS, type CadVariant } from './cad-variants.ts';
+import type { PlaybackState, ScriptSample } from './buffered-trajectory.ts';
 
-export type MotionFrame = {pose:Pose;q:number[];acceleration:Acceleration;robotMotion:RobotMotion|null};
-export type SceneState = MotionFrame & {cad:boolean;stickLength:number;weightN:number;selectedPart:number|null};
+export type MotionFrame = {pose:Pose;q:number[];acceleration:Acceleration;robotMotion:RobotMotion|null;timeline?:ScriptSample};
+export type SceneState = MotionFrame & {cad:boolean;stickLength:number;weightN:number;selectedPart:number|null;playback?:PlaybackState};
 function activityRate(report:(fps:number|null)=>void){
   let windowStart=0,count=0,last=0,idle=false;
   return {
@@ -29,7 +32,7 @@ function activityRate(report:(fps:number|null)=>void){
     },
   };
 }
-export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, onCad: (message: string) => void, onCadStatus: (status: CadStatus) => void, onCadReady: (solver: CadKinematics,dynamics:RobotDynamics,masses:MassProperties) => void, onCollision: (status: CollisionStatus) => void, onTorques:(result:TorqueAnalysis)=>void,onPart:(id:number|null)=>void,onFrameRate:(fps:number|null)=>void,onSolveRate:(fps:number|null)=>void,onCollisionRate:(fps:number|null)=>void) {
+export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, onCad: (message: string) => void, onCadStatus: (status: CadStatus) => void, onCadReady: (solver: CadKinematics,dynamics:RobotDynamics,masses:MassProperties) => void, onCollision: (status: CollisionStatus) => void, onTorques:(result:TorqueAnalysis)=>void,onPart:(id:number|null)=>void,onFrameRate:(fps:number|null)=>void,onSolveRate:(fps:number|null)=>void,onCollisionRate:(fps:number|null)=>void, variant:CadVariant='8108') {
   const renderer = new T.WebGLRenderer({canvas, antialias:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
   const renderBudget=createRenderBudget(120);
@@ -37,6 +40,7 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
   renderer.setClearColor(0x0a0f14);
   const scene=new T.Scene(), camera=new T.PerspectiveCamera(40,1,0.1,2500);
   const torqueLabels=createTorqueLabels(canvas);
+  const baseReactionLabel=createBaseReactionLabel(canvas);
   camera.position.set(510,300,610);
   const controls=new OrbitControls(camera,canvas);
   controls.target.set(0,125,0); controls.enableDamping=true;
@@ -103,6 +107,9 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
   let cadAnchors:T.Vector3[]=[];
   const firmwareAnchors=Array.from({length:6},()=>new T.Vector3());
   const worldAnchors=Array.from({length:6},()=>new T.Vector3());
+  const baseAnchor=new T.Vector3();
+  const worldBaseAnchor=new T.Vector3();
+  let hasBaseAnchor=false;
   const stickVisual=createStickVisual();
   let displayedReceiver:T.Mesh|undefined;
   let displayedOutput:T.Mesh|undefined;
@@ -110,7 +117,7 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
   const solveRate=activityRate(onSolveRate);
   const collisionRate=activityRate(onCollisionRate);
   const abort=new AbortController();
-  fetch('/sr6-cad.json',{signal:abort.signal,cache:'no-store'}).then(r=>{if(!r.ok)throw Error(`HTTP ${r.status}`);return r.json() as Promise<CadData>;}).then(async data=>{
+  fetch(CAD_VARIANTS[variant].data,{signal:abort.signal,cache:'no-store'}).then(r=>{if(!r.ok)throw Error(`HTTP ${r.status}`);return r.json() as Promise<CadData>;}).then(async data=>{
     if(data.partFiles){
       const chunks=await Promise.all(data.partFiles.map(async url=>{
         const response=await fetch(url,{signal:abort.signal});
@@ -120,7 +127,7 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
       data.parts=chunks.flat();
     }
     if(disposed)return;
-    const massResponse=await fetch('/sr6-mass-properties.json',{signal:abort.signal,cache:'no-store'});
+    const massResponse=await fetch(CAD_VARIANTS[variant].masses,{signal:abort.signal,cache:'no-store'});
     if(!massResponse.ok)throw Error(`质量属性 HTTP ${massResponse.status}`);
     const masses=await massResponse.json() as MassProperties;
     if(disposed)return;
@@ -137,6 +144,8 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
       const mesh = new T.Mesh(g,material);mesh.userData.partId=p.id;meshes.set(p.id,mesh);cadRoot.add(mesh);
     }
     cadRig = createCadRig(data, meshes);
+    const baseSheet=masses.parts.find(p=>p.id===1);
+    if(baseSheet){baseAnchor.fromArray(baseSheet.centerMm);hasBaseAnchor=true;}
     onCadReady(cadSolver,dynamics,masses);
     cadAnchors=[...data.spec.links].sort((a,b)=>a.motor-b.motor).map(l=>new T.Vector3(...l.pivot));
     cadPresentation.updateMatrixWorld(true);
@@ -162,9 +171,10 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
     drawRate.poll(now);solveRate.poll(now);collisionRate.poll(now);
     if(!renderBudget.begin(now,!document.hidden))return;
     const s=state();root.visible=!s.cad;cadRoot.visible=s.cad;
+    baseReactionLabel.playback(s.playback??{playing:false,timeMs:0,epoch:0});
     const nextVisual=JSON.stringify([s.cad,s.stickLength,s.weightN,s.selectedPart]);
     if(nextVisual!==visualRevision){visualRevision=nextVisual;invalidate();}
-    const next=JSON.stringify([s.pose,s.q,s.cad,s.acceleration,s.robotMotion]);
+    const next=JSON.stringify([s.pose,s.q,s.cad,s.acceleration,s.robotMotion,s.timeline]);
     if(next!==revision){
       invalidate();
       revision=next;const legs=geometry(s.pose,s.q);
@@ -172,8 +182,9 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
         const status=cadRig.update(s.pose,s.q);onCadStatus(status);
         if(status.valid){
           solveRate.record(now);
-          displayedMotion={pose:s.pose,q:s.q,acceleration:s.acceleration,robotMotion:s.robotMotion};
-          collisions?.changed(displayedMotion);
+          const desiredMotion={pose:s.pose,q:s.q,acceleration:s.acceleration,robotMotion:s.robotMotion,timeline:s.timeline};
+          if(collisions)collisions.changed(desiredMotion);
+          else displayedMotion=desiredMotion;
         }
       }
       legs.forEach((l,i)=>{
@@ -200,7 +211,7 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
       torqueRevision=nextTorque;
       const jacobian=s.cad?cadSolver!.inverseJacobian(motion.pose,motion.q):numericalInverseJacobian(motion.pose,inverse);
       const result=s.cad&&dynamics?dynamics.torques(motion.pose,motion.q,s.stickLength,s.weightN,motion.robotMotion):receiverTorques(jacobian,s.weightN,motion.acceleration);
-      torqueLabels.values(result);onTorques(result);
+      torqueLabels.values(result);baseReactionLabel.values(result,motion.timeline);onTorques(result);
     }
     controls.update();
     if(!renderBudget.takeDraw())return;
@@ -213,8 +224,10 @@ export function mountScene(canvas: HTMLCanvasElement, state: () => SceneState, o
     const anchorRoot=s.cad?cadRoot:root;
     anchors.forEach((a,i)=>worldAnchors[i].copy(a).applyMatrix4(anchorRoot.matrixWorld));
     torqueLabels.update(worldAnchors,camera,anchors.length===6);
+    if(hasBaseAnchor)worldBaseAnchor.copy(baseAnchor).applyMatrix4(cadRoot.matrixWorld);
+    baseReactionLabel.update(worldBaseAnchor,camera,s.cad&&hasBaseAnchor);
     renderer.render(scene,camera);
     drawRate.record(now);
   };frame=requestAnimationFrame(render);
-  return ()=>{disposed=true;abort.abort();cancelAnimationFrame(frame);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointerup',pointerUp);selection.geometry.dispose();selection.material.dispose();collisions?.dispose();stickVisual.dispose();torqueLabels.dispose();observer.disconnect();controls.dispose();scene.traverse(o=>{if(o instanceof T.Mesh)o.geometry.dispose();});Object.values(materials).forEach(m=>m.dispose());cadMaterials.forEach(m=>m.dispose());renderer.dispose();};
+  return ()=>{disposed=true;abort.abort();cancelAnimationFrame(frame);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointerup',pointerUp);selection.geometry.dispose();selection.material.dispose();collisions?.dispose();stickVisual.dispose();torqueLabels.dispose();baseReactionLabel.dispose();observer.disconnect();controls.dispose();scene.traverse(o=>{if(o instanceof T.Mesh)o.geometry.dispose();});Object.values(materials).forEach(m=>m.dispose());cadMaterials.forEach(m=>m.dispose());renderer.dispose();};
 }

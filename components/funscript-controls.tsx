@@ -6,6 +6,7 @@ import type { Pose } from '@/lib/sr6/kinematics';
 import { GRAVITY_MPS2 } from '@/lib/sr6/statics';
 import { useStoredSetting } from '@/lib/sr6/use-stored-setting';
 import { SCRIPT_STORAGE_KEY, SCRIPT_POSITION_KEY, validScriptGroups } from '@/lib/sr6/script-storage';
+import type { PlaybackState, ReferenceSample } from '@/lib/sr6/buffered-trajectory';
 
 const validRate=(v:unknown):v is number=>typeof v==='number'&&[.25,.5,1,1.5,2].includes(v);
 const validLoop=(v:unknown):v is boolean=>typeof v==='boolean';
@@ -13,7 +14,7 @@ const validSettings=(v:unknown):v is AxisSetting[]=>Array.isArray(v)&&v.length==
 const defaultSettings=SCRIPT_AXES.map(a=>({range:a.limit*2,reverse:false}));
 
 const timeLabel=(ms:number)=>`${Math.floor(ms/60000)}:${(ms/1000%60).toFixed(1).padStart(4,'0')}`;
-export function FunscriptControls({onPose,onPause,ready,stopToken,stick,onStick,weightN,onWeight}:{stick:StickSettings;onStick:(s:StickSettings)=>void;weightN:number;onWeight:(weightN:number)=>void;onPose:(p:Pose,timeMs?:number)=>boolean;onPause:()=>void;ready:boolean;stopToken:number}){
+export function FunscriptControls({onPose,onPause,onPlayback,ready,stopToken,stick,onStick,weightN,onWeight}:{stick:StickSettings;onStick:(s:StickSettings)=>void;weightN:number;onWeight:(weightN:number)=>void;onPose:(p:Pose,timeMs?:number,sample?:ReferenceSample)=>boolean;onPause:()=>void;onPlayback:(state:PlaybackState)=>void;ready:boolean;stopToken:number}){
   const [bundle,setBundle]=useState<ScriptBundle|null>(null);
   const [groups,setGroups]=useState<ScriptGroup[]>([]),[groupIndex,setGroupIndex]=useState(0);
   const [playing,setPlaying]=useState(false),[time,setTime]=useState(0);
@@ -24,10 +25,13 @@ export function FunscriptControls({onPose,onPause,ready,stopToken,stick,onStick,
   const [storageError,setStorageError]=useState('');
   const cursor=useRef(0),active=useRef(false),request=useRef(0),callback=useRef(onPose);
   const stopCallback=useRef(onPause);
+  const epoch=useRef(0),playbackCallback=useRef(onPlayback);
+  playbackCallback.current=onPlayback;
+  function publish(){playbackCallback.current({playing:active.current,timeMs:cursor.current,epoch:epoch.current});}
   callback.current=onPose;
   stopCallback.current=onPause;
-  function pause(){active.current=false;setPlaying(false);stopCallback.current();}
-  useEffect(()=>{active.current=false;setPlaying(false);stopCallback.current();},[stopToken]);
+  function pause(){active.current=false;setPlaying(false);publish();stopCallback.current();}
+  useEffect(()=>{active.current=false;setPlaying(false);publish();stopCallback.current();},[stopToken]);
   useEffect(()=>()=>{request.current++;active.current=false;},[]);
   useEffect(()=>{
     try{
@@ -65,17 +69,19 @@ export function FunscriptControls({onPose,onPause,ready,stopToken,stick,onStick,
     window.addEventListener('pagehide',savePosition);
     return ()=>{window.clearInterval(timer);window.removeEventListener('pagehide',savePosition);};
   },[groups,groupIndex,playing]);
-  function output(next:number,source=bundle,config=settings){
+  function output(next:number,source=bundle,config=settings,seek=true){
+    if(seek)epoch.current++;
     cursor.current=next;setTime(next);
+    publish();
     if(!source)return false;
-    const valid=callback.current(scriptPose(source,next,config));
+    const valid=callback.current(scriptPose(source,next,config,rate));
     if(!valid){pause();setError('当前脚本位置不可达，已暂停。请减小轴行程或转角，或调整进度。');}
     else setError('');
     return valid;
   }
   async function load(files:File[]){
     if(!files.length)return;
-    pause();setLoading(true);setError('');const id=++request.current;
+    pause();epoch.current++;publish();setLoading(true);setError('');const id=++request.current;
     try{
       const nextGroups=await loadScriptGroups(files);
       if(id!==request.current)return;
@@ -87,7 +93,7 @@ export function FunscriptControls({onPose,onPause,ready,stopToken,stick,onStick,
   function start(){
     if(!bundle||!ready||loading)return;
     const next=cursor.current>=bundle.duration?0:cursor.current;
-    if(output(next)&&bundle.duration>0){active.current=true;setPlaying(true);}
+    if(output(next,bundle,settings,next!==cursor.current)&&bundle.duration>0){active.current=true;publish();setPlaying(true);}
   }
   const togglePlayback=useRef(()=>{});
   togglePlayback.current=()=>{if(active.current)pause();else start();};
@@ -111,8 +117,11 @@ export function FunscriptControls({onPose,onPause,ready,stopToken,stick,onStick,
       const end=next>=bundle!.duration;
       const position=end?(loop?next%bundle!.duration:bundle!.duration):next;
       cursor.current=position;setTime(position);
-      if(end&&loop)stopCallback.current(); // Loop wrap is a seek, not physical acceleration.
-      if(!callback.current(scriptPose(bundle!,position,settings),now)){
+      if(end&&loop){epoch.current++;stopCallback.current();} // No line across the loop boundary.
+      publish();
+      const sample:ReferenceSample={timeMs:position,epoch:epoch.current,
+        poseAtOffset:seconds=>scriptPose(bundle!,position+seconds*1000*rate,settings,rate)};
+      if(!callback.current(scriptPose(bundle!,position,settings,rate),now,sample)){
         pause();setError('当前脚本位置不可达，已暂停。请减小轴行程或转角，或调整进度。');return;
       }
       if(end&&!loop){pause();return;}
@@ -128,13 +137,13 @@ export function FunscriptControls({onPose,onPause,ready,stopToken,stick,onStick,
     if(bundle&&ready)output(cursor.current,bundle,next);
   }
   return <section className="script-controls" aria-label="Funscript 脚本控制">
-    <div className="section-label"><span>Funscript 脚本</span><small>独立时间轴 · 线性插值</small></div>
+    <div className="section-label"><span>Funscript 脚本</span><small>Buffered · TCode 0.4 七次轨迹</small></div>
     <label className="script-file">{loading?'正在解析…':'选择脚本（可多选）'}<input type="file" accept=".funscript,.json" multiple disabled={loading} onChange={e=>{void load(Array.from(e.target.files??[]));e.target.value='';}}/></label>
-    {groups.length>0&&<div className="script-options"><label style={{minWidth:0,width:'100%'}}>脚本组<select aria-label="脚本组" style={{minWidth:0,flex:1}} value={groupIndex} disabled={loading} onChange={e=>{pause();const index=Number(e.target.value);setGroupIndex(index);setBundle(groups[index].bundle);cursor.current=0;setTime(0);setError('');}}>{groups.map((group,i)=><option key={group.name} value={i}>{i+1}. {group.name}</option>)}</select></label></div>}
+    {groups.length>0&&<div className="script-options"><label style={{minWidth:0,width:'100%'}}>脚本组<select aria-label="脚本组" style={{minWidth:0,flex:1}} value={groupIndex} disabled={loading} onChange={e=>{pause();const index=Number(e.target.value);setGroupIndex(index);setBundle(groups[index].bundle);cursor.current=0;epoch.current++;publish();setTime(0);setError('');}}>{groups.map((group,i)=><option key={group.name} value={i}>{i+1}. {group.name}</option>)}</select></label></div>}
     <div className="script-buttons"><button disabled={!bundle||!ready||loading} onClick={playing?pause:start}>{playing?'暂停':'播放'}</button><button disabled={!bundle||!ready||loading} onClick={()=>{pause();output(0);}}>回到开头</button></div>
     <input className="script-timeline" aria-label="脚本进度" type="range" min={0} max={bundle?.duration||1} step={1} value={time} disabled={!bundle||!ready||loading} onChange={e=>{pause();output(Number(e.target.value));}}/>
     <div className="script-clock"><span>{timeLabel(time)} / {timeLabel(bundle?.duration??0)}</span><span>{playing?'播放中':'已暂停'} · 空格切换</span></div>
-    <div className="script-options"><label>倍速 <select aria-label="脚本倍速" value={rate} onChange={e=>setRate(Number(e.target.value))}>{[.25,.5,1,1.5,2].map(v=><option key={v} value={v}>{v}×</option>)}</select></label><label><input type="checkbox" checked={loop} onChange={e=>setLoop(e.target.checked)}/>循环</label></div>
+    <div className="script-options"><label>倍速 <select aria-label="脚本倍速" value={rate} onChange={e=>{pause();epoch.current++;publish();setRate(Number(e.target.value));}}>{[.25,.5,1,1.5,2].map(v=><option key={v} value={v}>{v}×</option>)}</select></label><label><input type="checkbox" checked={loop} onChange={e=>setLoop(e.target.checked)}/>循环</label></div>
     {bundle&&<ul className="script-tracks">{bundle.tracks.map((t,i)=>t&&<li key={i} title={t.source}><strong>{SCRIPT_AXES[i].id}</strong><span>{t.source}</span><small>{t.actions.length} 点</small></li>)}</ul>}
     <details open><summary>每轴 0→1 总行程 / 总转角</summary><p>以装配零位为中心，0.5 对应零位。例如100 mm代表 −50→+50 mm；0可禁用该轴，缺少的轴保持零位。</p>{SCRIPT_AXES.map((a,i)=>{
       const end=settings[i].range/2*(settings[i].reverse?-1:1);

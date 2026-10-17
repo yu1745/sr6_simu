@@ -5,16 +5,20 @@ import { deflateRawSync } from 'node:zlib';
 // The source assembly is the calibrated CAD zero pose: every part's rig
 // transform is identity at ZERO (verified by scripts/test-cad-rig.mjs).
 const root = new URL('../', import.meta.url);
-const step = readFileSync(new URL('cad/sr6_mini_complete.stp', root));
-const cad = JSON.parse(readFileSync(new URL('public/sr6-cad.json', root), 'utf8'));
+for (const variant of [
+  {step:'sr6_mini_complete.stp',data:'sr6-cad.json',zip:'sr6_mini_centered_step.zip',entry:'sr6_mini_complete_centered.stp'},
+  {step:'sr6_6010_complete.stp',data:'sr6-6010-cad.json',zip:'sr6_6010_centered_step.zip',entry:'sr6_6010_complete_centered.stp'},
+]) {
+const step = readFileSync(new URL(`cad/${variant.step}`, root));
+const cad = JSON.parse(readFileSync(new URL(`public/${variant.data}`, root), 'utf8'));
 const sha256 = createHash('sha256').update(step).digest('hex');
-if (cad.source !== 'sr6_mini_complete.stp' || cad.sha256 !== sha256) {
+if (cad.source !== variant.step || cad.sha256 !== sha256) {
   throw new Error('STEP download and displayed CAD differ; regenerate the CAD assets first');
 }
 
 // Cloudflare static assets have a per-file size limit. Keep the exact STEP
 // bytes in a standard single-entry ZIP, with no geometry conversion.
-const name = Buffer.from('sr6_mini_complete_centered.stp');
+const name = Buffer.from(variant.entry);
 const compressed = deflateRawSync(step, { level: 9 });
 if (compressed.length > 25 * 1024 * 1024) throw new Error('Compressed STEP exceeds the static asset limit');
 const crcTable = Array.from({ length: 256 }, (_, n) => {
@@ -54,6 +58,7 @@ end.writeUInt16LE(1, 10);
 end.writeUInt32LE(central.length + name.length, 12);
 end.writeUInt32LE(centralOffset, 16);
 
-const output = new URL('public/sr6_mini_centered_step.zip', root);
+const output = new URL(`public/${variant.zip}`, root);
 writeFileSync(output, Buffer.concat([local, name, compressed, central, name, end]));
 console.log(`Centered STEP download: ${step.length} bytes -> ${compressed.length} bytes (${sha256.slice(0, 12)})`);
+}

@@ -1,5 +1,9 @@
 当前已按用户要求换为现货钢套：6×8×5 共8件、6×8×10 共2件。详细尺寸与摆角限制见 [钢套记录](cad/STEEL-SLEEVES.md)。下文仿形垫圈描述为此前方案。
 
+已新增 6010 / 8108 并存标签页。6010 仅使用 `sr6_minia.stp` 的底座与六套底部电机，其余 65 个实体及运动参数沿用当前 8108；STEP 和惯量下载随版本切换。重建与验证记录见 [6010 版本说明](cad/6010-VARIANT.md)。
+
+脚本播放已改为 MultiFunPlayer Buffered / TCode 0.4 的转折点七次轨迹；底部改为六张底座反力曲线，空格暂停同步冻结图表。此项替代下文早期线性插值及 CAD 脚本低通加速度估计的描述，详见 [轨迹与反力图说明](docs/BUFFERED-REACTION-CHARTS.md)。
+
 # SR6 SIMU
 
 本地 Three.js + TypeScript 工作台，React 负责输入面板；Vite/Vinext 承载页面。

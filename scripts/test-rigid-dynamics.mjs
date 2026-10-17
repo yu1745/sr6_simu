@@ -4,7 +4,7 @@ import * as T from 'three';
 import { ZERO } from '../lib/sr6/kinematics.ts';
 import { createCadRig } from '../lib/sr6/cad-rig.ts';
 import { createCadKinematics } from '../lib/sr6/cad-kinematics.ts';
-import { createRobotDynamics, bodyWrench } from '../lib/sr6/rigid-dynamics.ts';
+import { createRobotDynamics, bodyWrench, bodyBaseReaction } from '../lib/sr6/rigid-dynamics.ts';
 import { aggregateRigidBodies, validateMassProperties } from '../lib/sr6/mass-properties.ts';
 import { GRAVITY_MPS2 } from '../lib/sr6/statics.ts';
 import { solveStick } from '../lib/sr6/virtual-stick.ts';
@@ -39,6 +39,14 @@ const isolated=bodyWrench(4,new T.Matrix3().set(1,0,0,0,2,0,0,0,3),
 isolated.gravity.forEach((v,i)=>close(v,i===0?4*GRAVITY_MPS2:0));
 [8,-4,12,6.1,-5.6].forEach((v,i)=>close(isolated.inertia[i],v));
 
+// STEP +X is upward. The mechanism pushes downward on the fixed base;
+// angular inertia and the moment arm contribute to the reaction moment.
+const baseBody=bodyBaseReaction(2,new T.Matrix3().set(1,0,0,0,2,0,0,0,3),
+  {acceleration:[1,2,3],omega:[0,0,0],alpha:[0,0,1]},new T.Vector3(1,2,3),new T.Vector3());
+[-2*GRAVITY_MPS2,0,0,0,-6*GRAVITY_MPS2,4*GRAVITY_MPS2]
+  .forEach((v,i)=>close(baseBody.gravity[i],v));
+[-2,-4,-6,0,0,-3].forEach((v,i)=>close(baseBody.inertia[i],v));
+
 const meshes=new Map(data.parts.map(p=>[p.id,new T.Mesh()]));
 const rig=createCadRig(data,meshes);
 const poses=Array.from({length:12},(_,i)=>({...ZERO,x:4*Math.sin(i),y:5*Math.cos(i),z:3*Math.sin(i*.7),roll:.08*Math.sin(i*.4),pitch:.07*Math.cos(i*.5),twist:.2*Math.sin(i)}));
@@ -63,6 +71,19 @@ for(const pose of poses){
     close(loads.inertia[column],0);
   }
   const result=model.torques(pose,ik.q,220,100,null);assert.ok(result.valid,result.reason);
+  const base=result.baseReaction;assert.ok(base);
+  const baseOrigin=new T.Vector3(...masses.parts.find(part=>part.id===1).centerMm).multiplyScalar(.001);
+  const staticMoment=new T.Vector3(),gravityForce=new T.Vector3(-GRAVITY_MPS2,0,0);
+  for(const part of masses.parts.filter(part=>part.included)){
+    const center=new T.Vector3(...part.centerMm).applyMatrix4(meshes.get(part.id).matrix).multiplyScalar(.001);
+    staticMoment.add(center.sub(baseOrigin).cross(gravityForce.clone().multiplyScalar(part.massKg)));
+  }
+  const tip=model.bodyPoses(pose,ik.q,220).get('payload').center;
+  staticMoment.add(tip.clone().sub(baseOrigin).cross(new T.Vector3(-100,0,0)));
+  close(base.gravity[0],-masses.includedMassKg*GRAVITY_MPS2-100);
+  [base.gravity[3],base.gravity[4],base.gravity[5]].forEach((v,i)=>close(v,staticMoment.toArray()[i],1e-5));
+  base.inertia.forEach(v=>close(v,0));
+  assert.deepEqual(base.total,base.gravity);
   const j=solver.inverseJacobian(pose,ik.q).values;
   const all=model.generalizedLoads(pose,ik.q,220,100,null);
   for(let c=0;c<5;c++)close(j.reduce((s,row,i)=>s+row[c]*result.gravity[i],0),all.gravity[c],1e-4);
@@ -85,6 +106,8 @@ for(let i=0;i<400;i++){
 }
 assert.ok(maxPayload<1e-8,`Compensated tip should stay stationary: ${maxPayload}`);
 assert.ok(maxStructure>.001,`Moving mechanism needs inertia compensation: ${maxStructure}`);
+const movingReaction=model.torques(solution.receiver,solution.q,220,100,motion).baseReaction;
+assert.ok(movingReaction.inertia.some(v=>Math.abs(v)>.001),'Moving mechanism needs base inertia reaction');
 const frozen=structuredClone(motion),before=model.torques(solution.receiver,solution.q,220,100,motion);
 model.reset(); // Pause resets history, not the immutable rendered snapshot.
 assert.deepEqual(motion,frozen);

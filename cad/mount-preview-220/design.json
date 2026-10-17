@@ -1,0 +1,62 @@
+{
+  "compensationMm": 220,
+  "configuration": "220",
+  "zeroOffsetMm": [
+    0,
+    0,
+    0
+  ],
+  "ballCentersFixed": true,
+  "padOuterDiameterMm": 22,
+  "padThicknessMm": 4,
+  "pinClearanceDiameterMm": 6.5,
+  "checks": [
+    {
+      "motor": 3,
+      "ballCenter": [
+        183.062295,
+        270.186359,
+        -164.171573
+      ],
+      "axis": [
+        -0.07480871961188211,
+        0.09557718331517008,
+        0.9926070005291969
+      ],
+      "alphaDeg": -4.31,
+      "betaDeg": 5.5,
+      "receiverOverlapMm3": {
+        "60": 0.0,
+        "70": 0.0,
+        "71": 0.0,
+        "76": 0.0,
+        "77": 0.0,
+        "61": 0.0
+      }
+    },
+    {
+      "motor": 4,
+      "ballCenter": [
+        183.062295,
+        270.186359,
+        39.0
+      ],
+      "axis": [
+        0.014991480702110845,
+        -0.048669974419193775,
+        0.9987024026687796
+      ],
+      "alphaDeg": 0.86,
+      "betaDeg": -2.79,
+      "receiverOverlapMm3": {
+        "50": 0.0,
+        "68": 0.0,
+        "69": 0.0,
+        "74": 0.0,
+        "75": 0.0,
+        "51": 0.0
+      }
+    }
+  ],
+  "status": "Concept preview. New receiver shape not yet swept through all motions; machining, strength and assembly access not validated."
+}

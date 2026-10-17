@@ -1,0 +1,261 @@
+{
+  "cadSha256": "e15e328f624c0c1bccbd2751bb7fc3017519342d71a9068e6a5bd066072eca2f",
+  "criterion": "Minimize maximum upper-eye angle across reachable grid poses. Ball centers fixed. Only the independent M3/M4 pins can tilt; shared M1/M2 and M5/M6 pins are fixed by their two centers.",
+  "axisConvention": "Unit pin direction in receiver-local STEP coordinates; a=atan2(nx,nz), b=atan2(ny,nz), degrees. Original axis +Z.",
+  "search": "a,b each -30..30 deg at 1 deg, refined locally to 0.1 and 0.01 deg; finite search, not a global continuous guarantee.",
+  "results": {
+    "110": {
+      "sampleCount": 620,
+      "M3": {
+        "a": -3.0700000000000003,
+        "b": 5.08,
+        "maxAngleDeg": 22.819164498636294,
+        "axis": [
+          -0.053346206853936304,
+          0.08842052401433448,
+          0.994653705139295
+        ],
+        "totalTiltDeg": 5.927311654091079,
+        "baselineMaxDeg": 27.79259153958048,
+        "worstTarget": {
+          "x": 30,
+          "y": -60,
+          "z": 0,
+          "roll": 12.5,
+          "pitch": -12.5,
+          "twist": 0
+        }
+      },
+      "M4": {
+        "a": -0.09000000000000001,
+        "b": -2.29,
+        "maxAngleDeg": 22.070636476668767,
+        "axis": [
+          -0.001569541221696637,
+          -0.03995735038482969,
+          0.9992001534680514
+        ],
+        "totalTiltDeg": 2.2917641154662918,
+        "baselineMaxDeg": 22.964332200224266,
+        "worstTarget": {
+          "x": 30,
+          "y": -60,
+          "z": 0,
+          "roll": -12.5,
+          "pitch": -12.5,
+          "twist": 0
+        }
+      }
+    },
+    "160": {
+      "sampleCount": 606,
+      "M3": {
+        "a": -3.8299999999999996,
+        "b": 5.340000000000001,
+        "maxAngleDeg": 25.71380771738425,
+        "axis": [
+          -0.0665077257996079,
+          0.09285965600504768,
+          0.993455488029327
+        ],
+        "totalTiltDeg": 6.558634088445587,
+        "baselineMaxDeg": 31.522514890383817,
+        "worstTarget": {
+          "x": 30,
+          "y": -60,
+          "z": 0,
+          "roll": 12.5,
+          "pitch": -12.5,
+          "twist": 0
+        }
+      },
+      "M4": {
+        "a": 0.33000000000000007,
+        "b": -3.0100000000000002,
+        "maxAngleDeg": 24.890729032928913,
+        "axis": [
+          0.005751608984132954,
+          -0.0525093806257132,
+          0.9986038673770483
+        ],
+        "totalTiltDeg": 3.027969585108597,
+        "baselineMaxDeg": 26.48759113348883,
+        "worstTarget": {
+          "x": 30,
+          "y": -60,
+          "z": 0,
+          "roll": -12.5,
+          "pitch": -12.5,
+          "twist": 0
+        }
+      }
+    },
+    "220": {
+      "sampleCount": 567,
+      "M3": {
+        "a": -4.31,
+        "b": 5.5,
+        "maxAngleDeg": 28.772479213387545,
+        "axis": [
+          -0.07480871961188211,
+          0.09557718331517008,
+          0.9926070005291969
+        ],
+        "totalTiltDeg": 6.971334036338537,
+        "baselineMaxDeg": 35.06884526970219,
+        "worstTarget": {
+          "x": 30,
+          "y": -60,
+          "z": 0,
+          "roll": -12.5,
+          "pitch": 0,
+          "twist": 0
+        }
+      },
+      "M4": {
+        "a": 0.86,
+        "b": -2.79,
+        "maxAngleDeg": 27.973177078955455,
+        "axis": [
+          0.014991480702110845,
+          -0.048669974419193775,
+          0.9987024026687796
+        ],
+        "totalTiltDeg": 2.9191376534725646,
+        "baselineMaxDeg": 29.960932053767493,
+        "worstTarget": {
+          "x": 30,
+          "y": -60,
+          "z": 0,
+          "roll": 12.5,
+          "pitch": 0,
+          "twist": 0
+        }
+      }
+    },
+    "combined": {
+      "sampleCount": 1226,
+      "M3": {
+        "a": -3.8299999999999996,
+        "b": 5.340000000000001,
+        "maxAngleDeg": 25.71380771738425,
+        "axis": [
+          -0.0665077257996079,
+          0.09285965600504768,
+          0.993455488029327
+        ],
+        "totalTiltDeg": 6.558634088445587,
+        "baselineMaxDeg": 31.522514890383817,
+        "worstTarget": {
+          "x": 30,
+          "y": -60,
+          "z": 0,
+          "roll": 12.5,
+          "pitch": -12.5,
+          "twist": 0
+        }
+      },
+      "M4": {
+        "a": 0.33000000000000007,
+        "b": -3.0100000000000002,
+        "maxAngleDeg": 24.890729032928913,
+        "axis": [
+          0.005751608984132954,
+          -0.0525093806257132,
+          0.9986038673770483
+        ],
+        "totalTiltDeg": 3.027969585108597,
+        "baselineMaxDeg": 26.48759113348883,
+        "worstTarget": {
+          "x": 30,
+          "y": -60,
+          "z": 0,
+          "roll": -12.5,
+          "pitch": -12.5,
+          "twist": 0
+        }
+      }
+    },
+    "count-220": {
+      "M3": {
+        "a": -4,
+        "b": 6,
+        "axis": [
+          -0.0693761847516035,
+          0.10427660923335262,
+          0.9921256642966687
+        ],
+        "totalTiltDeg": 7.194986563387216,
+        "maxAngleDeg": 28.857464469339018
+      },
+      "M4": {
+        "a": -1,
+        "b": -6,
+        "axis": [
+          -0.017356829210296437,
+          -0.10451271698428721,
+          0.9943720794895272
+        ],
+        "totalTiltDeg": 6.081567051270221,
+        "maxAngleDeg": 28.58400970324779
+      },
+      "predictedCollisions": 216,
+      "sampleCount": 567,
+      "criterion": "Minimize union of fixed-part actual mesh collisions and M3/M4 angles >19deg; +/-15deg two-axis grid at 1deg. Heuristic shortlist, requires actual mesh validation."
+    },
+    "count-160": {
+      "M3": {
+        "a": -4,
+        "b": 5,
+        "axis": [
+          -0.06949231361732312,
+          0.08694504260562398,
+          0.9937863844480955
+        ],
+        "totalTiltDeg": 6.390501699292531,
+        "maxAngleDeg": 25.734573975211855
+      },
+      "M4": {
+        "a": -1,
+        "b": -6,
+        "axis": [
+          -0.017356829210296437,
+          -0.10451271698428721,
+          0.9943720794895272
+        ],
+        "totalTiltDeg": 6.081567051270221,
+        "maxAngleDeg": 25.528372627354994
+      },
+      "predictedCollisions": 238,
+      "sampleCount": 606,
+      "criterion": "Minimize union of fixed-part actual mesh collisions and M3/M4 angles >19deg; +/-15deg two-axis grid at 1deg. Heuristic shortlist, requires actual mesh validation."
+    },
+    "count-110": {
+      "M3": {
+        "a": 1,
+        "b": 4,
+        "axis": [
+          0.01740990615403727,
+          0.06974590118077807,
+          0.9974128555599175
+        ],
+        "totalTiltDeg": 4.122319460814885,
+        "maxAngleDeg": 26.984974085343577
+      },
+      "M4": {
+        "a": 3,
+        "b": -6,
+        "axis": [
+          0.05205003326639718,
+          -0.104386772667316,
+          0.993173799356925
+        ],
+        "totalTiltDeg": 6.698452979299645,
+        "maxAngleDeg": 26.529840536636183
+      },
+      "predictedCollisions": 122,
+      "sampleCount": 620,
+      "criterion": "Minimize union of fixed-part actual mesh collisions and M3/M4 angles >19deg; +/-15deg two-axis grid at 1deg. Heuristic shortlist, requires actual mesh validation."
+    }
+  }
+}

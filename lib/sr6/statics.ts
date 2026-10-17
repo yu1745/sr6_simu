@@ -4,9 +4,16 @@ export const GRAVITY_MPS2 = 9.80665;
 export type Acceleration = readonly [number,number,number]; // Fwd / Thrust / Side, m/s²
 export const NO_ACCELERATION:Acceleration = [0,0,0];
 export type InverseJacobian = {valid:boolean;values:number[][];reason:string};
+// Force of the moving assembly on the fixed base, expressed in STEP axes.
+// Moments are about the fixed base sheet (#1) center, not an individual mount.
+export type BaseReaction = {
+  originMm:readonly [number,number,number];
+  gravity:readonly number[];inertia:readonly number[];total:readonly number[];
+};
 export type TorqueAnalysis = {
   valid:boolean;reason:string;gravity:number[];inertia:number[];total:number[];
   massKg:number;acceleration:Acceleration;relativeResidual:number;
+  baseReaction?:BaseReaction;
 };
 
 // Port of ctw_esp32s3_0909/src/ik_static_analysis.cpp::staticForceAnalysis.

@@ -17,6 +17,8 @@ import { useStoredSetting } from '@/lib/sr6/use-stored-setting';
 import { type RobotDynamics, type RobotMotion } from '@/lib/sr6/rigid-dynamics';
 import { type MassProperties } from '@/lib/sr6/mass-properties';
 import { MaterialInspector } from './material-inspector';
+import { CAD_VARIANTS, type CadVariant } from '@/lib/sr6/cad-variants';
+import type { PlaybackState, ReferenceSample, ScriptSample } from '@/lib/sr6/buffered-trajectory';
 
 const validStick=(v:unknown):v is StickSettings=>{
   if(!v||typeof v!=='object')return false;
@@ -38,6 +40,9 @@ function Field({name,value,unit,onChange,min,max}:{name:string;value:number;unit
   return <label className="parameter-field"><span>{name}</span><div><input aria-label={name} type="number" step="0.5" min={min} max={max} value={Number(value.toFixed(4))} onChange={e=>{if(e.target.value!==''&&Number.isFinite(e.target.valueAsNumber))onChange(e.target.valueAsNumber);}}/><small>{unit}</small></div></label>;
 }
 export function Sr6Simulator(){
+  const [variant,setVariant]=useState<CadVariant>('8108');
+  const playback=useRef<PlaybackState>({playing:false,timeMs:0,epoch:0});
+  const timeline=useRef<ScriptSample|undefined>(undefined);
   const canvas=useRef<HTMLCanvasElement>(null);
   const [pose,setPose]=useState<Pose>({...ZERO});
   const [stick,setStick]=useStoredSetting('sr6.settings.v1.stick',DEFAULT_STICK,validStick);
@@ -72,16 +77,16 @@ export function Sr6Simulator(){
   const lastGood=useRef<{pose:Pose;q:number[];cad:boolean}>({pose:{...ZERO},q:Array(6).fill(0),cad:true});
   const sceneState=useRef<SceneState>({pose:{...ZERO},q:Array(6).fill(0),cad:true,stickLength:DEFAULT_STICK.length,weightN:0,acceleration:NO_ACCELERATION,robotMotion:null,selectedPart:null});
   const valid=error==='';
-  sceneState.current={...lastGood.current,cad:view==='cad',stickLength:stick.length,weightN,acceleration,robotMotion,selectedPart};
+  sceneState.current={...lastGood.current,cad:view==='cad',stickLength:stick.length,weightN,acceleration,robotMotion,selectedPart,timeline:timeline.current};
   const [renderError,setRenderError]=useState('');
   const residual=view==='cad' ? (cadSolver.current?.evaluate(lastGood.current.pose,lastGood.current.q) ?? {max:Infinity}) : evaluate(lastGood.current.pose,lastGood.current.q);
   const clearance=shaftClearance(geometry(lastGood.current.pose,lastGood.current.q));
 
   useEffect(()=>{
     if(!canvas.current)return;
-    try{return mountScene(canvas.current,()=>sceneState.current,setCadMessage,setCadStatus,(solver,model,masses)=>{cadSolver.current=solver;dynamics.current=model;setMassData(masses);setCadReady(true);},setCollision,setTorques,setSelectedPart,setFrameRate,setSolveRate,setCollisionRate);}
+    try{return mountScene(canvas.current,()=>({...sceneState.current,playback:playback.current}),setCadMessage,setCadStatus,(solver,model,masses)=>{cadSolver.current=solver;dynamics.current=model;setMassData(masses);setCadReady(true);},setCollision,setTorques,setSelectedPart,setFrameRate,setSolveRate,setCollisionRate,variant);}
     catch(e){setRenderError(e instanceof Error?e.message:String(e));}
-  },[mountScene]);
+  },[variant]);
   useEffect(()=>{
     const timer=window.setInterval(()=>{
       if(physicsSamples.current.last&&performance.now()-physicsSamples.current.last>1000){
@@ -97,8 +102,9 @@ export function Sr6Simulator(){
     const elapsed=now-samples.start;
     if(elapsed>=1000){setPhysicsRate(Math.round((samples.count-1)*1000/elapsed));samples.start=now;samples.count=1;}
   }
-  function stopMotion(){motionEstimator.reset();dynamics.current?.reset();physicsSamples.current={start:0,count:0,last:0};setPhysicsRate(null);setRobotMotion(null);setAcceleration(NO_ACCELERATION);setMotionSample(motionEstimator.getStatus());}
+  function stopMotion(){timeline.current=undefined;motionEstimator.reset();dynamics.current?.reset();physicsSamples.current={start:0,count:0,last:0};setPhysicsRate(null);setRobotMotion(null);setAcceleration(NO_ACCELERATION);setMotionSample(motionEstimator.getStatus());}
   function freezeMotion(){
+    playback.current={...playback.current,playing:false};
     // Keep the last pose's acceleration for inspection, but discard derivative
     // history so resuming never treats the pause as elapsed motion time.
     motionEstimator.reset();
@@ -106,7 +112,7 @@ export function Sr6Simulator(){
     physicsSamples.current={start:0,count:0,last:0};setPhysicsRate(null);
     setMotionSample(previous=>({...previous,state:'paused'}));
   }
-  function applyPose(next:Pose,fromScript=false,config=stick,timeMs?:number):boolean{
+  function applyPose(next:Pose,fromScript=false,config=stick,timeMs?:number,reference?:ReferenceSample):boolean{
     if(timeMs===undefined)stopMotion();
     if(!fromScript)setScriptStopToken(v=>v+1);
     if(view==='cad'&&!cadSolver.current){setError('CAD 正在加载');return false;}
@@ -118,10 +124,24 @@ export function Sr6Simulator(){
     const message=!inLimits?'超出当前输入范围':result.reason;
     setError(message);
     if(!message){
+      let planned:RobotMotion|null=null;
+      if(reference&&view==='cad'&&dynamics.current){
+        try{
+          planned=dynamics.current.referenceMotion(result.receiver,result.q,config.length,offset=>{
+            const p=solveStick(reference.poseAtOffset(offset),config,p=>cadSolver.current!.inverse(p,result.q));
+            if(p.reason)throw Error(p.reason);
+            return {pose:p.receiver,q:p.q};
+          });
+        }catch(e){setError(`轨迹动力学无法计算：${e instanceof Error?e.message:String(e)}`);freezeMotion();return false;}
+      }
+      timeline.current=reference?{timeMs:reference.timeMs,epoch:reference.epoch}:undefined;
       setQ(result.q);setStickScale(result.scale);lastTarget.current=next;lastGood.current={pose:result.receiver,q:result.q,cad:view==='cad'};
       if(timeMs!==undefined){
-        setAcceleration(motionEstimator.update(result.receiver,timeMs));setMotionSample(motionEstimator.getStatus());
-        const sample=view==='cad'&&dynamics.current?dynamics.current.sample(result.receiver,result.q,config.length,timeMs):null;
+        if(planned){
+          const a=planned.payload.acceleration;setAcceleration([-a[1],a[0],-a[2]]);
+          setMotionSample({state:'tracking',intervalMs:physicsSamples.current.last?timeMs-physicsSamples.current.last:0});
+        }else{setAcceleration(motionEstimator.update(result.receiver,timeMs));setMotionSample(motionEstimator.getStatus());}
+        const sample=planned??(view==='cad'&&dynamics.current?dynamics.current.sample(result.receiver,result.q,config.length,timeMs):null);
         setRobotMotion(sample);
         if(sample)recordPhysicsSample(timeMs);
       }
@@ -148,6 +168,14 @@ export function Sr6Simulator(){
     setQ(next);lastGood.current={pose:{...ZERO},q:next,cad:value==='cad'};
   }
   function reset(){changeView(view);}
+  function changeVariant(value:string){
+    if((value!=='8108'&&value!=='6010')||value===variant)return;
+    changeView('cad');
+    cadSolver.current=null;dynamics.current=null;
+    setCadReady(false);setCadStatus(null);setMassData(null);setSelectedPart(null);
+    setCollision(null);setTorques(null);setCadMessage('CAD 正在加载');setRenderError('');
+    setFrameRate(null);setSolveRate(null);setCollisionRate(null);setVariant(value);
+  }
   function changeMode(value:string){
     stopMotion();
     setScriptStopToken(v=>v+1);
@@ -172,14 +200,17 @@ export function Sr6Simulator(){
     <section className="workspace">
       <aside className="control-panel">
         <div className="panel-heading"><div><span>输入</span><strong>机构控制</strong></div></div>
-        <FunscriptControls stick={stick} weightN={weightN} onWeight={setWeightN} onPause={freezeMotion} onStick={next=>{setStick(next);setMode('pose');applyPose(pose,true,next);setScriptStopToken(v=>v+1);}} ready={view!=='cad'||cadReady} stopToken={scriptStopToken} onPose={(next,timeMs)=>{setMode('pose');return applyPose(next,true,stick,timeMs);}}/>
+        <Tabs value={variant} onValueChange={changeVariant}>
+          <TabsList className="segmented" aria-label="电机版本"><TabsTrigger value="8108">8108 版本</TabsTrigger><TabsTrigger value="6010">6010 版本</TabsTrigger></TabsList>
+        </Tabs>
+        <FunscriptControls stick={stick} weightN={weightN} onWeight={setWeightN} onPause={freezeMotion} onPlayback={state=>{playback.current=state;}} onStick={next=>{setStick(next);setMode('pose');applyPose(pose,true,next);setScriptStopToken(v=>v+1);}} ready={view!=='cad'||cadReady} stopToken={scriptStopToken} onPose={(next,timeMs,reference)=>{setMode('pose');return applyPose(next,true,stick,timeMs,reference);}}/>
         <Tabs value={mode} onValueChange={changeMode}>
           <TabsList className="segmented"><TabsTrigger value="pose">位姿 → 逆解</TabsTrigger><TabsTrigger value="motors">电机 → 正解</TabsTrigger></TabsList>
           <TabsContent value="pose"><div className="control-section"><div className="section-label"><span>{stick.enabled?'虚拟杆尖目标':'目标位姿'}</span><small>{view==='cad'?'相对当前装配零位':'相对固件零位'}</small></div><div className="field-grid">{definitions.map(d=><Field key={d.key} name={d.name} unit={d.unit} value={pose[d.key]/d.factor} min={-d.limit} max={d.limit} onChange={v=>applyPose({...pose,[d.key]:v*d.factor})}/>)}</div></div></TabsContent>
           <TabsContent value="motors"><div className="control-section"><div className="section-label"><span>{view==='cad'?'实际摇臂角增量':'逻辑关节角'}</span><small>{view==='cad'?'相对装配零位':'非驱动器原始位置'}</small></div><div className="field-grid">{q.map((angle,i)=><Field key={i} name={`M${i+1}`} unit="°" value={angle/rad} onChange={v=>applyAngles(q.map((x,j)=>j===i?v*rad:x))}/>)}<Field name="R0 / Twist" unit="°" value={pose.twist/rad} onChange={v=>applyAngles(q,v*rad)}/></div></div></TabsContent>
         </Tabs>
         <button className="reset-button" onClick={reset}><RotateCcw size={16}/>{view==='cad'?'恢复装配零位':'恢复固件零位'}</button>
-        {view==='cad'&&<div className="step-download"><a href="/sr6_mini_centered_step.zip" download="sr6_mini_centered_step.zip"><Download size={16}/>下载回中 STEP（ZIP）</a><small>固定装配零位 · 78 个实体 · 与当前动画位置无关</small></div>}
+        {view==='cad'&&<div className="step-download"><a href={CAD_VARIANTS[variant].download} download><Download size={16}/>下载 {variant} 回中 STEP（ZIP）</a><small>固定装配零位 · 与当前动画位置无关</small></div>}
         <div role="status" className={valid?'solver-status':'solver-status invalid'}>{view==='cad'&&!cadReady?'CAD 正在加载':valid?'闭环满足 · 当前位姿有效':`${error}；保持上一有效画面`}</div>
         {stick.enabled&&<div className="inspector-note"><span>虚拟杆补偿 · {(stickScale*100).toFixed(1)}%</span><p>实际接收器 Fwd {lastGood.current.pose.x.toFixed(2)} / Thrust {lastGood.current.pose.y.toFixed(2)} / Side {lastGood.current.pose.z.toFixed(2)} mm。{stickScale<1?'可达边界已缩小补偿，杆尖会偏离目标。':'按完整杆长补偿。'}</p></div>}
         <section className="joint-list"><div className="section-label"><span>{mode==='pose'?'逆解输出':'电机输入'}</span><small>°</small></div>{q.map((angle,i)=><div className="joint-row" key={i}><span>M{i+1}</span><span>{NAMES[i]}</span><strong>{(angle/rad).toFixed(3)}</strong></div>)}</section>
@@ -187,7 +218,7 @@ export function Sr6Simulator(){
       </aside>
       <section className="viewport">
         <canvas ref={canvas}/>
-        <div className="viewport-label"><strong>STEP 运动装配</strong><small>{cadMessage}</small><small>左键旋转 · 右键平移 · 滚轮缩放 · 单击零件查看材质与惯量</small></div>
+        <div className="viewport-label"><strong>{variant} · STEP 运动装配</strong><small>{cadMessage}</small><small>左键旋转 · 右键平移 · 滚轮缩放 · 单击零件查看材质与惯量</small></div>
         <div className="frame-rate" aria-label="画面、动力学采样、机构求解和碰撞同步频率" title="动力学采样跟随脚本播放；碰撞同步完成后，新装配姿态才显示在画面中。">
           <span>画面 <strong>{frameRate===null?'静止':`${frameRate} FPS`}</strong></span>
           <span>动力学采样 <strong>{physicsRate===null?'静止':`${physicsRate} FPS`}</strong></span>
@@ -209,10 +240,15 @@ export function Sr6Simulator(){
           {torques?.valid&&torques.relativeResidual>.01&&<p className="script-error">接近奇异位形，阻尼分配平衡误差较大。</p>}
           <p>{view==='cad'?'杆尖负载':'接收器'}加速度 Fwd / Thrust / Side：<span className="acceleration-values">{(torques?.acceleration??NO_ACCELERATION).map(v=>v.toExponential(2)).join(' / ')}</span> m/s²</p>
           <p>{view==='cad'?'包含机构自重、杆尖负载、各运动组件的平移惯性与 Iα + ω×Iω。':'固件骨架沿用接收器中心点质量模型，不使用 CAD 零件惯量。'}</p>
-          <p>播放采样：{motionSample.state==='tracking'?`${motionSample.intervalMs.toFixed(0)} ms / ${(1000/motionSample.intervalMs).toFixed(1)} Hz`:motionSample.state==='paused'?'已暂停，保留最后一帧读数':motionSample.state==='gap'?'时间跳变或间隔超过 500 ms，重新采样':motionSample.state==='warming'?'等待下一帧':'已停止'}。低采样率会降低加速度估计精度。</p>
-          <p>正号对应电机正角度方向。播放时按 10 Hz 滤波估计加速度，各方向限幅 ±20 m/s²；暂停保留惯量项，继续播放重新采样；定位及手动输入时惯量项归零。</p>
+          <p>播放采样：{motionSample.state==='tracking'?(motionSample.intervalMs>0?`${motionSample.intervalMs.toFixed(0)} ms / ${(1000/motionSample.intervalMs).toFixed(1)} Hz`:'参考轨迹已就绪'):motionSample.state==='paused'?'已暂停，保留最后一帧读数':motionSample.state==='gap'?'时间跳变或间隔超过 500 ms，重新采样':motionSample.state==='warming'?'等待下一帧':'已停止'}。曲线采样间隔过大可能遗漏短时峰值。</p>
+          <p>正号对应电机正角度方向。CAD 脚本使用 Buffered 七次参考轨迹计算加速度及角加速度，包含实际播放倍率与机构运动关系；暂停保留最后一帧及反力曲线，定位及手动输入清空动态项。</p>
         </section>
-        {view==='cad'&&massData&&<MaterialInspector data={massData} selected={selectedPart} onSelect={setSelectedPart}/>}
+        {view==='cad'&&<section className="torque-panel" aria-label="底座反力和反力矩"><div className="section-label"><span>底座反力 / 反力矩</span><small>STEP XYZ</small></div>
+          <p>运动组件对固定底座的作用；总值包含重力与惯性。</p>
+          {['Fx','Fy','Fz','Mx','My','Mz'].map((axis,i)=><div className="readout" key={axis}><span>{axis} ({i<3?'N':'N·m'})</span><strong>{torques?.valid&&torques.baseReaction?torques.baseReaction.total[i].toFixed(3):'—'}</strong></div>)}
+          <p>STEP +X 向上；反力矩以固定底座钣金 #1 的质心为参考点。正号沿 STEP 正轴。仅含运动组件和额外负载，不含固定底座及底部电机自重；未模拟底座弹性或实际振动。</p>
+        </section>}
+        {view==='cad'&&massData&&<MaterialInspector data={massData} selected={selectedPart} onSelect={setSelectedPart} downloadUrl={CAD_VARIANTS[variant].masses}/>}
         {view==='live'&&<div className="metric"><span>固件骨架光轴包络间隙</span><strong>{clearance.min.toFixed(2)} mm</strong><small>旧尺寸胶囊近似，不适用于新 CAD 装配</small></div>}
         {view==='cad'&&<section className="collision-panel" aria-label="模型干涉检测"><div className="section-label"><span>模型干涉检测</span><small>{collision?.pending?`${collision.workers??1} 线程计算中`:collision?.ready?`${collision.elapsed.toFixed(0)} ms`:''}</small></div><strong className={collision?.pairs.length?'collision-hit':''}>{collision?.error?'检测不可用':!collision?.ready?'正在构建检测网格':collision.displayedRevision===undefined?'等待首次结果':collision.pairs.length?`${collision.pairs.length} 对零件干涉`:'本次采样未发现干涉'}</strong>{collision?.error&&<p>{collision.error}</p>}{collision?.details?.map((detail,i)=><p key={i}>{detail}</p>)}<p>按指定范围检查 {collision?.partCount??33} 个零件：接收器主体、上端鱼眼、俯仰二级摇臂及接收器垫圈和紧固件。</p><p>红色：两零件布尔交集区域；特征边与视角轮廓：涉及零件（隐藏三角剖分线）。干涉消失后自动恢复。</p>{!!collision?.names.length&&<ul>{collision.names.map((name,i)=><li key={i}>{name}</li>)}</ul>}</section>}
         <div className="warning-card"><TriangleAlert size={20}/><div><strong>网格采样检测</strong><p>忽略同一刚性组件内部及已知连接配合，局部埋入补查容差0.03 mm。装配姿态与干涉结果同步更新，计算期间保持上一已检测画面，运动显示可能略滞后于脚本；高速运动、细小穿透和源模型缺陷可能漏检，不代表全行程无干涉。</p></div></div>

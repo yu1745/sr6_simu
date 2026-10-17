@@ -1,0 +1,718 @@
+{
+  "source": "sr6_mini.stp",
+  "source_sha256": "313963a09a1765475e251350939f98f91b5c5edd8b0160401d6a5b7f204cfe94",
+  "output": "sr6_6010_complete.stp",
+  "sha256": "c84b8c63df4cedaad342a7cf8bbdeb0a013b5731bb35d691cf3a643815ff7b4d",
+  "shaft": {
+    "diameter": 10,
+    "length": 210,
+    "thread": "M6x1 RH",
+    "thread_depth": 12,
+    "pilot_depth": 14,
+    "thread_representation": "simplified cylindrical envelope, no helical teeth",
+    "modeled_hole_diameter": 6.05,
+    "nominal_tap_drill_diameter": 5
+  },
+  "bearing": {
+    "model": "SA6T/K JLCFA supplier STEP",
+    "bore": 6,
+    "head_diameter": 20,
+    "ball_diameter": 12.7,
+    "ball_width": 9,
+    "housing_width": 6.75,
+    "center_to_tip": 36,
+    "male_thread_length": 21,
+    "engagement": 12,
+    "exposed_thread": 9
+  },
+  "nuts": {
+    "model": "DIN934 M6",
+    "height": 5,
+    "across_flats": 10,
+    "spacer_quantity": 0,
+    "locking_quantity": 4,
+    "quantity": 4
+  },
+  "pitch_arm_connection": "Rod-end male shanks screw directly into tapped arm end plates; no additional bolts or nuts; threads simplified",
+  "receiver_fasteners": [
+    {
+      "side": "right",
+      "bolt_id": 64,
+      "nut_id": 65,
+      "designation": "M6x50 full-thread socket head cap screw",
+      "head_diameter": 10,
+      "head_height": 6,
+      "hex_key": 5,
+      "hex_socket_depth": 3,
+      "head_seat": [
+        100.062295,
+        270.186359,
+        67.5
+      ],
+      "nut_seat": [
+        100.062295,
+        270.186359,
+        25.5
+      ],
+      "clamped_stack": 42,
+      "locking_nut_height": 5,
+      "tip_protrusion": 3,
+      "thread_model": "simplified"
+    },
+    {
+      "side": "left",
+      "bolt_id": 66,
+      "nut_id": 67,
+      "designation": "M6x50 full-thread socket head cap screw",
+      "head_diameter": 10,
+      "head_height": 6,
+      "hex_key": 5,
+      "hex_socket_depth": 3,
+      "head_seat": [
+        100.062295,
+        270.186359,
+        -192.671573
+      ],
+      "nut_seat": [
+        100.062295,
+        270.186359,
+        -150.671573
+      ],
+      "clamped_stack": 42,
+      "locking_nut_height": 5,
+      "tip_protrusion": 3,
+      "thread_model": "simplified"
+    },
+    {
+      "side": "right",
+      "mount": "pitch",
+      "bolt_id": 68,
+      "nut_id": 69,
+      "connected_parts": [
+        38,
+        50,
+        51
+      ],
+      "designation": "M6x30 socket head cap screw",
+      "head_diameter": 10,
+      "head_height": 6,
+      "hex_key": 5,
+      "hex_socket_depth": 3,
+      "head_seat": [
+        183.062295,
+        270.186359,
+        48.5
+      ],
+      "nut_seat": [
+        183.062295,
+        270.186359,
+        25.5
+      ],
+      "clamped_stack": 23,
+      "locking_nut_height": 5,
+      "tip_protrusion": 2,
+      "thread_model": "simplified"
+    },
+    {
+      "side": "left",
+      "mount": "pitch",
+      "bolt_id": 70,
+      "nut_id": 71,
+      "connected_parts": [
+        38,
+        60,
+        61
+      ],
+      "designation": "M6x30 socket head cap screw",
+      "head_diameter": 10,
+      "head_height": 6,
+      "hex_key": 5,
+      "hex_socket_depth": 3,
+      "head_seat": [
+        183.062295,
+        270.186359,
+        -173.671573
+      ],
+      "nut_seat": [
+        183.062295,
+        270.186359,
+        -150.671573
+      ],
+      "clamped_stack": 23,
+      "locking_nut_height": 5,
+      "tip_protrusion": 2,
+      "thread_model": "simplified"
+    }
+  ],
+  "stack": "receiver -> 5 mm steel sleeve -> 9 mm ball -> 10 mm steel sleeve -> 9 mm ball -> 5 mm steel sleeve",
+  "receiver_ball_spacing": 19,
+  "steel_sleeves": {
+    "bore": 6,
+    "outer_diameter": 8,
+    "height": 5,
+    "single_quantity": 8,
+    "double_height": 10,
+    "double_quantity": 2,
+    "status": "nominal stock sleeve geometry; joint interference begins near 19 degrees; verify supplier bore tolerance"
+  },
+  "eye_to_eye": 258.0,
+  "inherited_invalid_source_solids": [
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    39
+  ],
+  "links": [
+    {
+      "motor": 0,
+      "crank": 15,
+      "shaft": 20,
+      "lower_ball": 21,
+      "upper_ball": 18,
+      "lower_eye": 22,
+      "upper_eye": 19,
+      "pivot": [
+        50.0,
+        51.50003706667658,
+        -151.99999999996183
+      ],
+      "upper": [
+        100.062295,
+        270.186359,
+        -164.171573
+      ],
+      "initial": 3.141592653589793,
+      "lower": [
+        -54.277055341214464,
+        63.80026996549992,
+        -151.99999999996183
+      ],
+      "length": 258.0,
+      "crank_angle_deg": 173.27263477705483,
+      "shaft_start": [
+        -39.91990647226428,
+        82.9989759221976,
+        -153.13223934880259
+      ],
+      "shaft_end": [
+        85.70514613104982,
+        250.98765304330232,
+        -163.03933365115924
+      ]
+    },
+    {
+      "motor": 1,
+      "crank": 16,
+      "shaft": 25,
+      "lower_ball": 26,
+      "upper_ball": 23,
+      "lower_eye": 27,
+      "upper_eye": 24,
+      "pivot": [
+        145.0,
+        51.50003706667658,
+        -151.99999999996183
+      ],
+      "upper": [
+        100.062295,
+        270.186359,
+        -183.171573
+      ],
+      "initial": -0.035383639995503285,
+      "lower": [
+        249.45712500886327,
+        62.1634809232698,
+        -151.99999999996183
+      ],
+      "length": 258.0,
+      "crank_angle_deg": 5.8288139476900644,
+      "shaft_start": [
+        235.5599315196667,
+        81.51444632575632,
+        -154.8996812092677
+      ],
+      "shaft_end": [
+        113.95948848919659,
+        250.83539359751344,
+        -180.27189179069413
+      ]
+    },
+    {
+      "motor": 2,
+      "crank": 58,
+      "shaft": 59,
+      "upper_ball": 60,
+      "upper_eye": 61,
+      "lower_ball": 62,
+      "lower_eye": 63,
+      "pivot": [
+        240.0,
+        51.50003706667658,
+        -66.99999999994655
+      ],
+      "lower": [
+        338.5122304849094,
+        87.8365262323635,
+        -66.99999999994655
+      ],
+      "upper": [
+        183.062295,
+        270.186359,
+        -164.171573
+      ],
+      "length": 258.5700263989471,
+      "crank_angle_deg": 20.24662555770365
+    },
+    {
+      "motor": 3,
+      "crank": 17,
+      "shaft": 49,
+      "lower_ball": 52,
+      "upper_ball": 50,
+      "lower_eye": 53,
+      "upper_eye": 51,
+      "pivot": [
+        240.0,
+        51.50003706667658,
+        -41.00000000005345
+      ],
+      "lower": [
+        340.6423539601903,
+        81.43524358595371,
+        -41.00000000005345
+      ],
+      "upper": [
+        183.062295,
+        270.186359,
+        39.0
+      ],
+      "length": 258.5700263989471,
+      "crank_angle_deg": 16.56465907915632
+    },
+    {
+      "motor": 4,
+      "crank": 14,
+      "shaft": 30,
+      "lower_ball": 31,
+      "upper_ball": 28,
+      "lower_eye": 32,
+      "upper_eye": 29,
+      "pivot": [
+        145.0,
+        51.50003706667658,
+        43.99999999997688
+      ],
+      "upper": [
+        100.062295,
+        270.186359,
+        58.0
+      ],
+      "initial": 0,
+      "lower": [
+        249.62013035745935,
+        60.423507467154835,
+        43.99999999997688
+      ],
+      "length": 258.0,
+      "crank_angle_deg": 4.875187175650144,
+      "shaft_start": [
+        235.70777358002127,
+        79.93633086555903,
+        45.302325581374376
+      ],
+      "shaft_end": [
+        113.97465177743808,
+        250.67353560159577,
+        56.6976744186025
+      ]
+    },
+    {
+      "motor": 5,
+      "crank": 0,
+      "shaft": 35,
+      "lower_ball": 36,
+      "upper_ball": 33,
+      "lower_eye": 37,
+      "upper_eye": 34,
+      "pivot": [
+        50.0,
+        51.50003706667658,
+        43.99999999997688
+      ],
+      "upper": [
+        100.062295,
+        270.186359,
+        39.0
+      ],
+      "initial": 3.141592653589793,
+      "lower": [
+        -54.30903836838205,
+        63.526030358850065,
+        43.99999999997688
+      ],
+      "length": 258.0,
+      "crank_angle_deg": 173.4232945137931,
+      "shaft_start": [
+        -39.94891433411395,
+        82.75024697663144,
+        43.534883720909264
+      ],
+      "shaft_end": [
+        85.70217096573191,
+        250.9621423822186,
+        39.465116279067615
+      ]
+    }
+  ],
+  "part_names": {
+    "0": "M6_crank",
+    "1": "U_body_6010",
+    "2": "6010_motor_2_body",
+    "3": "6010_motor_3_cover",
+    "4": "6010_motor_4_body",
+    "5": "6010_motor_5_cover",
+    "6": "6010_motor_6_body",
+    "7": "6010_motor_7_cover",
+    "8": "6010_motor_8_body",
+    "9": "6010_motor_9_cover",
+    "10": "6010_motor_10_body",
+    "11": "6010_motor_11_cover",
+    "12": "6010_motor_12_body",
+    "13": "6010_motor_13_cover",
+    "14": "M5_crank",
+    "15": "M1_crank",
+    "16": "M2_crank",
+    "17": "M4_crank",
+    "18": "M1_upper_ball",
+    "19": "M1_upper_eye",
+    "20": "M1_shaft",
+    "21": "M1_lower_ball",
+    "22": "M1_lower_eye",
+    "23": "M2_upper_ball",
+    "24": "M2_upper_eye",
+    "25": "M2_shaft",
+    "26": "M2_lower_ball",
+    "27": "M2_lower_eye",
+    "28": "M5_upper_ball",
+    "29": "M5_upper_eye",
+    "30": "M5_shaft",
+    "31": "M5_lower_ball",
+    "32": "M5_lower_eye",
+    "33": "M6_upper_ball",
+    "34": "M6_upper_eye",
+    "35": "M6_shaft",
+    "36": "M6_lower_ball",
+    "37": "M6_lower_eye",
+    "38": "source_38",
+    "39": "source_39",
+    "40": "source_40",
+    "41": "source_41",
+    "42": "source_42",
+    "43": "source_43",
+    "44": "source_44",
+    "45": "source_45",
+    "46": "source_46",
+    "47": "source_47",
+    "48": "source_48",
+    "49": "pitch_secondary_arm_replacement",
+    "50": "M4_upper_ball",
+    "51": "M4_upper_eye",
+    "52": "M4_lower_ball",
+    "53": "M4_lower_eye",
+    "54": "receiver_right_spacer_1_M6",
+    "55": "receiver_right_spacer_2_M6",
+    "56": "receiver_left_spacer_1_M6",
+    "57": "receiver_left_spacer_2_M6",
+    "58": "M3_crank",
+    "59": "M3_shaft",
+    "60": "M3_upper_ball",
+    "61": "M3_upper_eye",
+    "62": "M3_lower_ball",
+    "63": "M3_lower_eye",
+    "64": "receiver_right_M6x50_socket_cap_bolt",
+    "65": "receiver_right_M6_locking_nut",
+    "66": "receiver_left_M6x50_socket_cap_bolt",
+    "67": "receiver_left_M6_locking_nut",
+    "68": "receiver_pitch_right_M6x30_socket_cap_bolt",
+    "69": "receiver_pitch_right_M6_locking_nut",
+    "70": "receiver_pitch_left_M6x30_socket_cap_bolt",
+    "71": "receiver_pitch_left_M6_locking_nut",
+    "72": "receiver_main_outer_72_steel_sleeve_M6",
+    "73": "receiver_main_outer_73_steel_sleeve_M6",
+    "74": "receiver_pitch_outer_74_steel_sleeve_M6",
+    "75": "receiver_pitch_inner_75_steel_sleeve_M6",
+    "76": "receiver_pitch_outer_76_steel_sleeve_M6",
+    "77": "receiver_pitch_inner_77_steel_sleeve_M6"
+  },
+  "replacements": {
+    "motor_base": {
+      "input": "sr6_minia.stp",
+      "part_id": 1,
+      "source_id": 0,
+      "rotation": [
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "translation": [
+        2.5,
+        4.0,
+        -54.0
+      ],
+      "part_scale": 1,
+      "mount_center_max_error_mm": 4.0196360384375716e-05
+    },
+    "pitch_arm": {
+      "input": "pitch-replacement-0.stp",
+      "part_id": 49,
+      "rotation": [
+        [
+          0.7676460006548026,
+          -0.6265681394037145,
+          0.1346550569524016
+        ],
+        [
+          0.640874104390782,
+          0.7505101595705859,
+          -0.1612912976655802
+        ],
+        [
+          -5.951437419346598e-17,
+          0.21011155861946604,
+          0.9776774176253121
+        ]
+      ],
+      "translation": [
+        314.52711192850177,
+        97.11267700528164,
+        -23.581961489480534
+      ],
+      "part_scale": 1,
+      "hole_diameter": 6,
+      "old_hole_diameter": 5,
+      "flange_axis_span": 199.88773953438982,
+      "old_flange_axis_span": 219,
+      "lateral_offset": 76.4345977609257,
+      "old_lateral_offset": 63,
+      "eye_to_flange_distances": [
+        22.499996925141044,
+        24.626859904889894
+      ],
+      "eye_to_eye": 258.5700263989471,
+      "old_eye_to_eye": 274.6770927585838,
+      "stem_direction": [
+        -0.6408070412901389,
+        0.7675656717405156,
+        0.014466354015759816
+      ],
+      "lower_flange": [
+        326.2241975015535,
+        98.70546883995914,
+        -40.67450707918085
+      ],
+      "upper_flange": [
+        198.84336023191923,
+        251.28362673424357,
+        38.643739126319346
+      ],
+      "link": {
+        "motor": 3,
+        "crank": 17,
+        "shaft": 49,
+        "lower_ball": 52,
+        "upper_ball": 50,
+        "lower_eye": 53,
+        "upper_eye": 51,
+        "pivot": [
+          240.0,
+          51.50003706667658,
+          -41.00000000005345
+        ],
+        "lower": [
+          340.6423539601903,
+          81.43524358595371,
+          -41.00000000005345
+        ],
+        "upper": [
+          183.062295,
+          270.186359,
+          39.0
+        ],
+        "length": 258.5700263989471,
+        "crank_angle_deg": 16.56465907915632
+      }
+    },
+    "left_pitch_arm": {
+      "source_motor": 4,
+      "motor_base_mirror_plane_z": -54.0,
+      "receiver_center_plane_z": -62.5857865,
+      "receiver_offset_from_mirrored_right_mm": -17.171572999999995,
+      "part_scale": 1,
+      "part_ids": {
+        "crank": 58,
+        "shaft": 59,
+        "upper_ball": 60,
+        "upper_eye": 61,
+        "lower_ball": 62,
+        "lower_eye": 63
+      },
+      "link": {
+        "motor": 2,
+        "crank": 58,
+        "shaft": 59,
+        "upper_ball": 60,
+        "upper_eye": 61,
+        "lower_ball": 62,
+        "lower_eye": 63,
+        "pivot": [
+          240.0,
+          51.50003706667658,
+          -66.99999999994655
+        ],
+        "lower": [
+          338.5122304849094,
+          87.8365262323635,
+          -66.99999999994655
+        ],
+        "upper": [
+          183.062295,
+          270.186359,
+          -164.171573
+        ],
+        "length": 258.5700263989471,
+        "crank_angle_deg": 20.24662555770365
+      }
+    }
+  },
+  "references": [
+    "https://www.ikont.co.jp/global_data/download/pdf_catalog/cat5502dPHS.pdf",
+    "https://eshop.wuerth.de/Product-categories/DIN-934-stainless-steel-A2-plain/14013512120105.cyid/1401.cgid/en/US/EUR/"
+  ],
+  "variant": "6010",
+  "variant_sources": {
+    "reference": "sr6_minia.stp",
+    "reference_sha256": "0b0a03361ce7103e976d0441e9780fa6f5c910a5bc8773bc4b769694d9c564c2",
+    "baseline": "sr6_mini_complete.stp",
+    "baseline_sha256": "e15e328f624c0c1bccbd2751bb7fc3017519342d71a9068e6a5bd066072eca2f",
+    "rotation": [
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "translation": [
+      2.5,
+      4.0,
+      -54.0
+    ],
+    "scale": 1,
+    "replacement_map": {
+      "1": 0,
+      "2": 1,
+      "3": 2,
+      "4": 3,
+      "5": 4,
+      "8": 5,
+      "9": 6,
+      "10": 7,
+      "11": 8,
+      "6": 9,
+      "7": 10,
+      "12": 11,
+      "13": 12
+    },
+    "preserved_ids": [
+      0,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77
+    ]
+  }
+}
